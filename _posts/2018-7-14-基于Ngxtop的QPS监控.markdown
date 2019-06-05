@@ -1,3 +1,15 @@
+---
+layout:     post
+title:      "基于Ngxtop的QPS监控"
+subtitle:   " \"自定义监控工具\""
+date:       2018-07-14 18:00:00
+author:     "HQ"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - 服务端
+---
+
 ![](https://img.hacpai.com/bing/20180309.jpg?imageView2/1/w/960/h/520/interlace/1/q/100)
 
 >之前参与一个公有云项目的开发，系统入口是公有云平台提供的LB。云平台的LB再将请求转发到后方的多台Nginx，Nginx上再做反向代理到后方的服务器。为了获取系统的QPS，我们在Nginx服务器上写了个定时任务脚本，定期采集并发量，然后汇总。
