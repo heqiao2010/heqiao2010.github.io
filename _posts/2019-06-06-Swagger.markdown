@@ -150,3 +150,8 @@ RequestMappingHandlerMapping中的两个关键方法：
 Springfox获取Controller Bean信息的类图：
 
 ![](https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/2019/swagger.png )
+
+参考：
+https://www.vojtechruzicka.com/documenting-spring-boot-rest-api-swagger-springfox/
+
+https://www.v2ex.com/t/493395
