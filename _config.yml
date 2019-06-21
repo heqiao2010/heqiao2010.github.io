@@ -89,5 +89,9 @@ friends: [
     {
         title: "CSDN博客",
         href: "http://blog.csdn.net/he_qiao_2010"
+    },
+    {
+        title: "简书",
+        href: "https://www.jianshu.com/u/0c49c893a644"
     }
 ]
