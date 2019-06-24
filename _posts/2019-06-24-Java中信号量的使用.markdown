@@ -1,0 +1,13 @@
+---
+layout:     post
+title:      "Java中信号量的使用"
+subtitle:   " \"Java并发基础\""
+date:       2019-06-24 18:00:00
+author:     "HQ"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - Java
+---
+
+>操作系统中，涉及到进程同步时，经常会涉及信号量这个概念；或者说信号量是进程同步的一种
