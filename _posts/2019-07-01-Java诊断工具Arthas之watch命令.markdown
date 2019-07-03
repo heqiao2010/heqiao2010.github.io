@@ -10,7 +10,7 @@ tags:
     - Arthas
 ---
 
->Arthas是一个开元的Java诊断工具,详见:https://alibaba.github.io/arthas/index.html. 今天第一次在项目中排查问题使用到它,发现其功能确实很强大.这里记录一下watch命令的使用.
+>Arthas是一个开源的Java诊断工具,详见:https://alibaba.github.io/arthas/index.html. 今天第一次在项目中排查问题使用到它,发现其功能确实很强大.这里记录一下watch命令的使用.
 
 ### 安装
 安装JDK然后以jar包的形式运行即可.
