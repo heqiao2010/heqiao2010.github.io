@@ -10,7 +10,11 @@ tags:
     - Spring
 ---
 
->在编码过程中遇到一个Profile和Lookup注解的问题,这里记录一下.Profile的原意是剖面的意思,Profile在官方的API文档中,是如此描述的:A profile is a named logical grouping that may be activated programmatically via ConfigurableEnvironment.setActiveProfiles(java.lang.String...) or declaratively by setting the spring.profiles.active property as a JVM system property, as an environment variable, or as a Servlet context parameter in web.xml for web applications. Profiles may also be activated declaratively in integration tests via the @ActiveProfiles annotation.通过Profile可以从逻辑上对Bean做一些分组,然后应用中通过配置来选中某一组Bean进行实例化.Lookup注解是用于实现,注入prototype-scoped类型的Bean,一般我们可能习惯用new的方式去实例化非单例模式的Bean.
+>在编码过程中遇到一个Profile和Lookup注解的问题,这里记录一下.Profile的原意是剖面的意思,Profile在官方的API文档中,是如此描述的:
+
+>A profile is a named logical grouping that may be activated programmatically via ConfigurableEnvironment.setActiveProfiles(java.lang.String...) or declaratively by setting the spring.profiles.active property as a JVM system property, as an environment variable, or as a Servlet context parameter in web.xml for web applications. Profiles may also be activated declaratively in integration tests via the @ActiveProfiles annotation.
+
+>通过Profile可以从逻辑上对Bean做一些分组,然后应用中通过配置来选中某一组Bean进行实例化.Lookup注解是用于实现,注入prototype-scoped类型的Bean,一般我们可能习惯用new的方式去实例化非单例模式的Bean.
 
 ### Profile注解示例
 实现开发环境和生产环境采用不同的数据源.
