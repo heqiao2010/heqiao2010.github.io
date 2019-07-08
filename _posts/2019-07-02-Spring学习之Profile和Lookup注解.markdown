@@ -107,4 +107,5 @@ public class MagicBossIMpl implements MagicBoss {
 
 ### 参考
 https://www.baeldung.com/spring-lookup
+
 http://websystique.com/spring/spring-profile-example/
