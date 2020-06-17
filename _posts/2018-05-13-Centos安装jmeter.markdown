@@ -32,7 +32,7 @@ tags:
 
 1. 修改profile
 
-	`vim /etc/prifile`
+	`vim /etc/profile`
 	
 	然后追加：
 	
