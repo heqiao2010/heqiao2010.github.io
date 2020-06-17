@@ -61,3 +61,7 @@ Collecting data...<br>
 
 生成的统计文件后，用浏览器打开目录中的index.html即可。SOLO项目的代码统计：
 ![统计文件](https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/solo-statistic.png "solo-statistic")
+
+此外，为了让一些前端同学（不熟悉python和linux环境）也能用这个工具，自己写了一个能够用web访问的小工具：
+
+见：https://github.com/heqiao2010/webGitstats
