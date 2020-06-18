@@ -107,3 +107,62 @@ ${(grouplist)!}
 	</#if>
 ${url_param}</#macro>
 ```
+
+### 额外的问题
+
+FreeMarker遍历集合集合时貌似有个要求，集合本身必须是Collection的子类；如果将jackson的JsonNode对象，扔给Freemarker则可能会有问题，例如：
+
+```
+	{
+    "vuls": [
+        {
+            "vuln": 1,
+            "port": 6379,
+            "title": "xxx",
+            "checkid": 7,
+            "msg": "xxx!",
+            "hacked_file": [
+                {
+                    "info": "xxx",
+                    "path": "xxx"
+                }
+            ],
+            "pid": 1351
+        }
+		]
+}
+```
+
+如果通过如下模板进行解析，则会出现问题，因为json对象中的数组，无法用freemarker中的list遍历，这点很奇怪。
+
+```
+XXX ：
+<#list vuls as vul>
+ <#list vul.hacked_file as item>
+  xx：${item.path},xxx：${item.info}
+ </#list>
+</#list>
+```
+
+但是可以通过把JsonNode当做字符串处理，在freemarker中用eval进行处理，则没问题：
+
+```
+<#function parseJSON json>
+  <#local null = 'null'> <#-- null is not a keyword in FTL -->
+  <#return json?eval>
+</#function>
+<#assign jsonObj=parseJSON(vuls)/>
+XXX ：
+<#list jsonObj as vul>
+ <#list vul.hacked_file as item>
+  xx：${item.path},xxx：${item.info}
+ </#list>
+</#list>
+```
+
+### 参考资料
+https://stackoverflow.com/questions/46154391/how-can-i-iterate-a-collection-twice-in-freemarker#
+
+https://stackoverflow.com/questions/17778844/evaluate-json-with-null-value-using-freemarker
+
+https://stackoverflow.com/questions/12708162/how-to-get-json-into-a-freemarker-template-ftl
