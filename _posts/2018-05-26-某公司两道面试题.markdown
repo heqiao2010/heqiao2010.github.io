@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "某公司两道面试题"
-subtitle:   " \"两道看似简单的笔试题\""
+category:   面试
 date:       2018-05-13 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

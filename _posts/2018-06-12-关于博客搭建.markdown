@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Solo博客搭建"
-subtitle:   " \"尝试用Solo搭建动态博客\""
+category:   杂七杂八
 date:       2018-06-12 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

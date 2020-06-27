@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Syslog基础"
-subtitle:   " \"syslog基础\""
+category:   syslog
 date:       2019-06-10 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

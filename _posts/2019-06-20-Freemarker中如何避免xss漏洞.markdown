@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Freemarker中如何避免xss漏洞"
-subtitle:   " \"Freemarker细节\""
+category:   Freemarker
 date:       2019-06-20 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

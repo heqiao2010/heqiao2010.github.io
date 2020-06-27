@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "CentOs安装Jmeter"
-subtitle:   " \"如何在CentOs中安装Jmeter做压力测试\""
+category:   服务端
 date:       2018-05-13 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

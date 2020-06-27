@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "git技巧之git stash"
-subtitle:   " \"git stash\""
+category:   git
 date:       2019-06-13 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

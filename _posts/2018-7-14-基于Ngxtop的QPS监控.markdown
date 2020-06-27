@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "基于Ngxtop的QPS监控"
-subtitle:   " \"自定义监控工具\""
+category:   nginx
 date:       2018-07-14 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

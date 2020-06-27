@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Java垃圾回收"
-subtitle:   " \"Java垃圾回收基础\""
+category:   服务端
 date:       2018-06-18 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

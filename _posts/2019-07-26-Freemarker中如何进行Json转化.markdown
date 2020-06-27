@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Freemarker中如何进行Json转化"
-subtitle:   " \"Freemarker\""
+category: Freemarker
 date:       2019-07-26 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

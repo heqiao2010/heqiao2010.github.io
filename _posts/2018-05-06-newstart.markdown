@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "一个全新的开始"
-subtitle:   " \"搬新家了一切全新开始\""
+category:   杂七杂八
 date:       2018-05-06 11:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

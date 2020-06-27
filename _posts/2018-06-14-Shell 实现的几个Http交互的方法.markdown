@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Shell 实现的几个Http交互的方法"
-subtitle:   " \"Shell脚本在工作中的应用\""
+category:   服务端
 date:       2018-06-14 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

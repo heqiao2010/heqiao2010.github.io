@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "JUC共享锁之Semaphore"
-subtitle:   " \"Java并发基础\""
+category:   Java并发基础
 date:       2019-06-24 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "记录一个MySql count细节问题"
-subtitle:   " \"Mysql细节\""
+category:   Mysql
 date:       2019-01-01 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

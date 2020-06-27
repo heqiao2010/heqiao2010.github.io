@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "PropertyUtilsBean"
-subtitle:   " \"Spring工具类学习\""
+category:   Spring基础
 date:       2018-08-25 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

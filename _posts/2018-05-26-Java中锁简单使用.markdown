@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Java中锁的使用"
-subtitle:   " \"sychronized比较熟悉，Lock呢？\""
+category:   服务端
 date:       2018-05-13 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

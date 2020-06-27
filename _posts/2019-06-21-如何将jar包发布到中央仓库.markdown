@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "如何将jar包发布到中央仓库"
-subtitle:   " \"github玩家基本功\""
+category:   github玩家基本功
 date:       2019-06-21 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

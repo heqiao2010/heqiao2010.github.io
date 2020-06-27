@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "异步线程池优化"
-subtitle:   " \"利用线程池实现异步任务时，如何避免性能问题\""
+category:   服务端
 date:       2018-06-22 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"

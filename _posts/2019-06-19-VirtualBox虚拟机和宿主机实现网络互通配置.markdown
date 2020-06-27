@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "VirtualBox虚拟机和宿主机实现网络互通配置"
-subtitle:   " \"捣鼓一下虚拟机\""
+category:   虚拟机
 date:       2019-06-19 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"
@@ -16,12 +16,12 @@ tags:
 
 VirtualBox的提供了四种网络接入模式
 
-1. NAT 网络地址转换模式(NAT,Network Address Translation) ：
+1. NAT 网络地址转换模式(NAT,Network Address Translation) ：
 宿主机做nat转换，对外外部网络来说，虚拟机是不可见的，因为宿主机代理了虚拟机的所有请求。
-2. Bridged Adapter 桥接模式 ：
+2. Bridged Adapter 桥接模式 ：
 对于虚拟机，外部网络可见，虚拟机和宿主机存在于同一个网段。
-3. Internal 内部网络模式 ：创建一个隔离的虚拟网络，在这个网络中的虚拟机之间可以相互访问，虚拟机不能访问外部网络，外部网络也不能访问内部虚拟机。
-4. Host-only Adapter 主机模式 ：　也可以通过配置实现，下次有机会再看看。
+3. Internal 内部网络模式 ：创建一个隔离的虚拟网络，在这个网络中的虚拟机之间可以相互访问，虚拟机不能访问外部网络，外部网络也不能访问内部虚拟机。
+4. Host-only Adapter 主机模式 ：　也可以通过配置实现，下次有机会再看看。
 
 各个接入方式对比：
 

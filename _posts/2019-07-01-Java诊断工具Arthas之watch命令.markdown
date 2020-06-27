@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Java诊断工具Arthas之watch命令"
-subtitle:   " \"Arthas阿尔沙斯\""
+category:  Arthas
 date:       2019-07-01 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"
