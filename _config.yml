@@ -11,10 +11,10 @@ webrick:
     Access-Control-Allow-Origin: "*"
 ## Global Variables
 email: "he_qiao_2010@yeah.net"
-github: "heqiao2010/HQ-BLOG"
+github: "heqiao2010/heqiao2010.github.io"
 # path to: css/, fonts/, img/ and js/
 assets_path: "/assets" # i.e. "/assets" 
-statement: "Designed by DeerRIDER, All Rights Reserved"
+statement: "HQ's blog, All Rights Reserved"
 # default max toc levels: 1 - 6 (h1 - h6)
 toc_level: 3
 # texts randomly displayed in background
