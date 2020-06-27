@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "CAS单点登录原理"
-subtitle:   " \"CAS基础\""
+category:   CAS
 date:       2019-07-03 18:00:00
 author:     "HQ"
 header-img: "img/post-bg-2015.jpg"
