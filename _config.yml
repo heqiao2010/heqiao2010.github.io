@@ -1,97 +1,21 @@
-# Site settings
-title: HQ Blog
-SEOTitle: 何巧的博客 | HQ Blog
-header-img: img/home-bg.jpg
-email: he_qiao_2010@yeah.net
-description: "一只专注后端Java开发的码农 | 何巧，Web & Java Lover，Software Engineer | 这里是 @HQ何巧 的个人博客，与你一起发现更大的世界。"
-keyword: "何巧, HQ何巧, HQ, Java, Spring, @HQ, 何巧的博客, HQ Blog, 博客, 个人网站, 互联网, Web, JavaScript, 后端, Java"
-url: "https://heqiao2010.com"              # your host, for absolute URL
-baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
-
-
-
-# SNS settings
-RSS: false
-weibo_username:     6111974761
-zhihu_username:     qiao-he-2010
-github_username:    heqiao2010
-twitter_username:   Joel60189532
-facebook_username:  he_qiao_2010@yeah.net
-# linkedin_username:  firstname-lastname-idxxxx
-
-
-
-# Build settings
-# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
-highlighter: rouge
-permalink: pretty
-paginate: 10
-exclude: ["less","node_modules","Gruntfile.js","package.json","README.md","README.zh.md"]
-anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
-
-
-
-# Gems
-# from PR#40, to support local preview for Jekyll 3.0
-gems: [jekyll-paginate]
-
-
-
-# Markdown settings
-# replace redcarpet to kramdown,
-# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
-# document: http://jekyllrb.com/docs/configuration/#kramdown
+## Settings
+title: HQ-BLOG
+owner: "heqiao2010"
+url: "https://heqiao2010.github.io"
+baseurl: "/HQ-BLOG"
+permalink: /:title/
+description: ""
 markdown: kramdown
-kramdown:
-  input: GFM                            # use Github Flavored Markdown !important
-
-
-
-# Disqus settings
-disqus_username: hq
-
-# Netease setttings
-netease_comment: false
-
-
-
-# Analytics settings
-# Baidu Analytics 
-# ba_track_id: [your track id]
-
-# Google Analytics
-ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
-ga_domain: heqiao2010.me
-
-
-
-# Sidebar settings
-sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "记录学习生活中的点点滴滴。"
-sidebar-avatar: /img/avatar-hq.jpeg      # use absolute URL, seeing it's used in both `/` and `/about/`
-
-
-
-# Featured Tags
-featured-tags: true                     # whether or not using Feature-Tags
-featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
-
-
-
-# Progressive Web Apps
-chrome-tab-theme-color: "#000000"
-service-worker: true
-
-
-
-# Friends
-friends: [
-    {
-        title: "CSDN博客",
-        href: "http://blog.csdn.net/he_qiao_2010"
-    },
-    {
-        title: "简书",
-        href: "https://www.jianshu.com/u/0c49c893a644"
-    }
-]
+webrick:
+  headers:
+    Access-Control-Allow-Origin: "*"
+## Global Variables
+email: "he_qiao_2010@yeah.net"
+github: "heqiao2010/HQ-BLOG"
+# path to: css/, fonts/, img/ and js/
+assets_path: "/assets" # i.e. "/assets" 
+statement: "Designed by DeerRIDER, All Rights Reserved"
+# default max toc levels: 1 - 6 (h1 - h6)
+toc_level: 3
+# texts randomly displayed in background
+bgtext: "αβγδεζηθικλμνξοπρστυφχψω∷∫∮∝∞∧∨∑∏∪∩∈∵∴⊥‖∠⌒⊙≌√"
