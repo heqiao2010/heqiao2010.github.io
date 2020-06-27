@@ -1,13 +1,8 @@
 ---
-layout:     post
-title:      "日志归档工具logrotate介绍"
-subtitle:   " \"logrotate\""
-date:       2020-06-17 18:00:00
-author:     "HQ"
-header-img: "img/post-bg-2015.jpg"
-catalog: true
-tags:
-    - logrotate
+title: 日志归档工具logrotate介绍
+layout: post
+category: logrotate
+date: 2020-06-17 18:00:00
 ---
 
 ### 缘起
