@@ -2,7 +2,7 @@
 title: HQ-BLOG
 owner: "heqiao2010"
 url: "https://heqiao2010.github.io"
-baseurl: "/HQ-BLOG"
+baseurl: "/heqiao2010.github.io"
 permalink: /:title/
 description: ""
 markdown: kramdown
