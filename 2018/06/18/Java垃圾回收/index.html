@@ -5,24 +5,24 @@
   
 
   
-  <title>Java垃圾回收 | Hexo</title>
+  <title>Java垃圾回收 | heqiao2010</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="在目前我参与的实际项目开发中，启动Java进程时，并没有设置额外的虚拟机参数。因为公司通过k8s集群给我们自己的业务微服务打了标签，基本上时独享整个机器的内存，所以没有增加相关的JVM参数，对这块了解也不多。在上一家公司工作的时候，测试内存溢出用的是Jprofile，运行一段时间之后，手动触发GC，看内存是否增长。  Java虚拟机内存分区Java虚拟机主要分为以下五个区:  一、方法区：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java垃圾回收">
-<meta property="og:url" content="http://example.com/2018/06/18/Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http://heqiao2010.github.io/2018/06/18/Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/index.html">
+<meta property="og:site_name" content="heqiao2010">
 <meta property="og:description" content="在目前我参与的实际项目开发中，启动Java进程时，并没有设置额外的虚拟机参数。因为公司通过k8s集群给我们自己的业务微服务打了标签，基本上时独享整个机器的内存，所以没有增加相关的JVM参数，对这块了解也不多。在上一家公司工作的时候，测试内存溢出用的是Jprofile，运行一段时间之后，手动触发GC，看内存是否增长。  Java虚拟机内存分区Java虚拟机主要分为以下五个区:  一、方法区：">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://img.hacpai.com/bing/20180112.jpg?imageView2/1/w/960/h/520/interlace/1/q/100">
 <meta property="article:published_time" content="2018-06-18T10:00:00.000Z">
 <meta property="article:modified_time" content="2020-10-22T03:32:28.825Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="heqiao2010">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img.hacpai.com/bing/20180112.jpg?imageView2/1/w/960/h/520/interlace/1/q/100">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -43,7 +43,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">heqiao2010</a>
       </h1>
       
     </div>
@@ -63,7 +63,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://heqiao2010.github.io"></form>
       </div>
     </div>
   </div>
@@ -130,7 +130,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2018/06/18/Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" data-id="ckgkbt1m3000ba2ww62el5pgg" class="article-share-link">Share</a>
+      <a data-url="http://heqiao2010.github.io/2018/06/18/Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" data-id="ckgkg4ih6000b60wwgues71bs" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
@@ -242,7 +242,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
+      &copy; 2020 heqiao2010<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
