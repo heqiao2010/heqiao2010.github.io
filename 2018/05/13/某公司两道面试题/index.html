@@ -1,265 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-
-  
-  <title>某公司两道面试题 | heqiao2010</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="今天下午接到某公司笔试的通知，面试官发过来一个链接，打开之后，发现是两道笔试题，看似简单，但是打完之后，面试官直接关了页面，结果可想而知，这里分享一下这两道题，后面想想更好的解决方案。   查找整数输入：一个有序数组array，一个整数n输出：如果n在array里，输出n的位置；如果n不在array中输出n可以插入的位置，插入后的数组仍然有序例如：    *[1,3,5,6], 5 → 2*[1">
-<meta property="og:type" content="article">
-<meta property="og:title" content="某公司两道面试题">
-<meta property="og:url" content="http://heqiao2010.github.io/2018/05/13/%E6%9F%90%E5%85%AC%E5%8F%B8%E4%B8%A4%E9%81%93%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
-<meta property="og:site_name" content="heqiao2010">
-<meta property="og:description" content="今天下午接到某公司笔试的通知，面试官发过来一个链接，打开之后，发现是两道笔试题，看似简单，但是打完之后，面试官直接关了页面，结果可想而知，这里分享一下这两道题，后面想想更好的解决方案。   查找整数输入：一个有序数组array，一个整数n输出：如果n在array里，输出n的位置；如果n不在array中输出n可以插入的位置，插入后的数组仍然有序例如：    *[1,3,5,6], 5 → 2*[1">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2018-05-13T10:00:00.000Z">
-<meta property="article:modified_time" content="2020-10-22T03:32:28.824Z">
-<meta property="article:author" content="heqiao2010">
-<meta property="article:tag" content="面试题">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-<meta name="generator" content="Hexo 5.2.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">heqiao2010</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://heqiao2010.github.io"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-某公司两道面试题" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/13/%E6%9F%90%E5%85%AC%E5%8F%B8%E4%B8%A4%E9%81%93%E9%9D%A2%E8%AF%95%E9%A2%98/" class="article-date">
-  <time datetime="2018-05-13T10:00:00.000Z" itemprop="datePublished">2018-05-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      某公司两道面试题
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>今天下午接到某公司笔试的通知，面试官发过来一个链接，打开之后，发现是两道笔试题，看似简单，但是打完之后，<br>面试官直接关了页面，结果可想而知，这里分享一下这两道题，后面想想更好的解决方案。</p>
-</blockquote>
-<ol>
-<li>查找整数<br>输入：一个有序数组array，一个整数n<br>输出：如果n在array里，输出n的位置；如果n不在array中输出n可以插入的位置，插入后的数组仍然有序<br>例如：  </li>
-</ol>
-<p>*[1,3,5,6], 5 → 2<br>*[1,3,5,6], 2 → 1<br>*[1,3,5,6], 7 → 4<br>*[1,3,5,6], 0 → 0  </p>
-<p>我的答案：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 默认升序，如果降序需要反过来</span><br><span class="line">public int findPosition(int arr[], int n)&#123;</span><br><span class="line"> int min &#x3D; 0;</span><br><span class="line">    int max &#x3D; arr.length - 1;</span><br><span class="line">  </span><br><span class="line">   if(null &#x3D;&#x3D; arr || arr.length &#x3D;&#x3D; 0)&#123;</span><br><span class="line">     return -1; </span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">   if(n &gt; arr[max])&#123;</span><br><span class="line">     return max + 1;</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">   if(n &#x3D;&#x3D; arr[max])&#123;</span><br><span class="line">     return max;</span><br><span class="line">     &#125;</span><br><span class="line">  </span><br><span class="line">   if(n &lt;&#x3D; arr[min])&#123;</span><br><span class="line">     return min;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">   while(max - min &gt; 1)&#123;</span><br><span class="line">     int newIndex &#x3D; (max + min) &#x2F; 2;</span><br><span class="line">       if(arr[newIndex] &gt; n)&#123;</span><br><span class="line">         &#x2F;&#x2F;取小区间</span><br><span class="line">           max &#x3D; newIndex;</span><br><span class="line">        &#125; else if(arr[newIndex] &lt; n)&#123;</span><br><span class="line">         &#x2F;&#x2F;取大区间</span><br><span class="line">           min &#x3D; newIndex;</span><br><span class="line">        &#125; else&#123;</span><br><span class="line">         &#x2F;&#x2F;相等，找到了</span><br><span class="line">           return newIndex;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">   if(arr[max] &#x3D;&#x3D; n)&#123;</span><br><span class="line">     return max;</span><br><span class="line">    &#125; else if(arr[min] &#x3D;&#x3D; n)&#123;</span><br><span class="line">     return min;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">     &#x2F;&#x2F; 可以插入位置在min后</span><br><span class="line">     return min + 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-<p>分析：<br>上面只是做了一个简单的二分查找，有没有更优的解决方案，后面还需要再研究下。</p>
-<ol start="2">
-<li>字符串查找<br>输入: 字符串str1， 字符串str2<br>输出: 字符串str2在字符串str1中第一次出现的位置。如果没有返回-1.<br>例如： str1=“<a target="_blank" rel="noopener" href="http://www.taobao.com”/">www.taobao.com”</a> str2=”taobao” -&gt; 4<br>其它要求：不能使用String类的indexOf方法  </li>
-</ol>
-<p>我的答案：  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class Solution &#123;</span><br><span class="line">    public int strStr(String str1, String str2) &#123;</span><br><span class="line">     if(null &#x3D;&#x3D; str1 || null &#x3D;&#x3D; str2 || str1.length()&lt;str2.length())&#123;</span><br><span class="line">         return -1;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">     int i &#x3D; 0; &#x2F;&#x2F; str1 p1</span><br><span class="line">        while(i&lt;str1.length())&#123;</span><br><span class="line">         int j &#x3D; 0; &#x2F;&#x2F; str2 p2</span><br><span class="line">         while( str1.length() &gt;&#x3D; (i + j) </span><br><span class="line">             &amp;&amp; str1.charAt(i + j) &#x3D;&#x3D; str2.charAt(j))&#123;</span><br><span class="line">                j++;</span><br><span class="line">                if(j &#x3D;&#x3D; str2.length())&#123;</span><br><span class="line">                 return i;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; </span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-<p>分析：<br>我的答案只是传统的字符串匹配方式，大学里面学的KMP早已忘记，很尴尬，😅。</p>
+{% block page_class %}page-post-detail{% endblock %}
 
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://heqiao2010.github.io/2018/05/13/%E6%9F%90%E5%85%AC%E5%8F%B8%E4%B8%A4%E9%81%93%E9%9D%A2%E8%AF%95%E9%A2%98/" data-id="ckgkgvyzw002eoyww73aw214y" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2018/05/13/Java%E4%B8%AD%E9%94%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Java中锁的使用
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2018/05/06/newstart/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">一个全新的开始</div>
-    </a>
-  
-</nav>
+{% block content %}
 
-  
-</article>
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 heqiao2010<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}
