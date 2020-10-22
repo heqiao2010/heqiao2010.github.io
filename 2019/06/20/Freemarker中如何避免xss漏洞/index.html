@@ -5,13 +5,13 @@
   
 
   
-  <title>Freemarker中如何避免xss漏洞 | heqiao2010</title>
+  <title>Freemarker中如何避免xss漏洞 | heqiao2010@yeah.net</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="什么是XSS漏洞试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Freemarker中如何避免xss漏洞">
 <meta property="og:url" content="http://heqiao2010.github.io/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/index.html">
-<meta property="og:site_name" content="heqiao2010">
+<meta property="og:site_name" content="heqiao2010@yeah.net">
 <meta property="og:description" content="什么是XSS漏洞试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2019-06-20T10:00:00.000Z">
@@ -20,7 +20,7 @@
 <meta property="article:tag" content="Freemarker">
 <meta name="twitter:card" content="summary">
   
-    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="heqiao2010@yeah.net" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -41,7 +41,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">heqiao2010</a>
+        <a href="/" id="logo">heqiao2010@yeah.net</a>
       </h1>
       
     </div>
@@ -110,7 +110,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://heqiao2010.github.io/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/" data-id="ckgkg4ih3000560ww9m7uezkb" class="article-share-link">Share</a>
+      <a data-url="http://heqiao2010.github.io/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/" data-id="ckgkgjx9z000523ww7pxv0qve" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li></ul>
