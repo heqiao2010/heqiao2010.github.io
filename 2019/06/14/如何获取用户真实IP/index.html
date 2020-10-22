@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>如何获取用户真实IP | heqiao2010</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在web开发过程中，我们经常需要获取用户客户端的真实IP。比如我们想知道客户的地理位置分布；比如服务端需要将会话和IP地址绑定，以提高安全性等。但是一般在分布式系统中，为了提高系统的可靠性和性能，都会采用代理来分发用户的请求，导致获取用户真实IP变得有些麻烦。  获取调用方IP的方法直接调用HttpServletRequest中的request.getRemoteAddr()方法，获取的IP地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何获取用户真实IP">
+<meta property="og:url" content="http://heqiao2010.github.io/2019/06/14/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9EIP/index.html">
+<meta property="og:site_name" content="heqiao2010">
+<meta property="og:description" content="在web开发过程中，我们经常需要获取用户客户端的真实IP。比如我们想知道客户的地理位置分布；比如服务端需要将会话和IP地址绑定，以提高安全性等。但是一般在分布式系统中，为了提高系统的可靠性和性能，都会采用代理来分发用户的请求，导致获取用户真实IP变得有些麻烦。  获取调用方IP的方法直接调用HttpServletRequest中的request.getRemoteAddr()方法，获取的IP地址">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-06-14T10:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-22T03:32:28.826Z">
+<meta property="article:author" content="heqiao2010">
+<meta property="article:tag" content="服务端">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">heqiao2010</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://heqiao2010.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-如何获取用户真实IP" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/14/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9EIP/" class="article-date">
+  <time datetime="2019-06-14T10:00:00.000Z" itemprop="datePublished">2019-06-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      如何获取用户真实IP
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在web开发过程中，我们经常需要获取用户客户端的真实IP。比如我们想知道客户的地理位置分布；比如服务端需要将会话和IP地址绑定，以提高安全性等。但是一般在分布式系统中，为了提高系统的可靠性和性能，都会采用代理来分发用户的请求，导致获取用户真实IP变得有些麻烦。</p>
+</blockquote>
+<h2 id="获取调用方IP的方法"><a href="#获取调用方IP的方法" class="headerlink" title="获取调用方IP的方法"></a>获取调用方IP的方法</h2><p>直接调用HttpServletRequest中的request.getRemoteAddr()方法，获取的IP地址，是当前服务的上游服务的IP地址，在没有代理的情况下是准确的，不过一般都会有一个或者多个代理，这种方式一般不适用。一般可能用如下几个字段</p>
+<h3 id="X-FORWARDED-FOR"><a href="#X-FORWARDED-FOR" class="headerlink" title="X-FORWARDED-FOR"></a>X-FORWARDED-FOR</h3><p>X-FORWARDED-FOR这个http头是个调试参数，在代理服务器上做相关的配置，能够实现，在经过每一个代理的时候，会往后追加上代理的IP地址；这样通过这个字段就可以知道，这个请求被代理了多少次，每次代理是由那个IP处理的；所以取列表第一个IP就是用户的真实IP地址了。</p>
+<p>nginx支持X-FORWARDED-FOR的配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Proxy-Client-IP"><a href="#Proxy-Client-IP" class="headerlink" title="Proxy-Client-IP"></a>Proxy-Client-IP</h3><p>用apache http做代理时一般会加上Proxy-Client-IP请求头</p>
+<h3 id="WL-Proxy-Client-IP"><a href="#WL-Proxy-Client-IP" class="headerlink" title="WL-Proxy-Client-IP"></a>WL-Proxy-Client-IP</h3><p>weblogic插件加上的头</p>
+<h3 id="HTTP-CLIENT-IP"><a href="#HTTP-CLIENT-IP" class="headerlink" title="HTTP_CLIENT_IP"></a>HTTP_CLIENT_IP</h3><p>有些代理服务器会加上此请求头。</p>
+<h3 id="X-Real-IP"><a href="#X-Real-IP" class="headerlink" title="X-Real-IP"></a>X-Real-IP</h3><p>在nginx中可以把上游调用的真实IP加到HTTP请求头中，这个IP从remote_addr变量中获取是从TCP链接中获取的真实IP。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy_set_header X-Real-IP $remote_addr;</span><br></pre></td></tr></table></figure>
+
+<h2 id="某些特殊情况"><a href="#某些特殊情况" class="headerlink" title="某些特殊情况"></a>某些特殊情况</h2><p>正常我们会按照上面的顺序按照优先级获取真实的IP地址。网上一般都会把X-FORWARDED-FOR这个参数作为第一优先级来处理。但是这个参数实际上是不安全的。<br>X-FORWARDED-FOR这个参数的值是个列表，每次经过代理都是往后追加，而不是覆盖的。所以不能确保IP是可信的。客户端可以先伪造一个IP放到头部，真实IP就会在伪造IP之后了。比如：</p>
+<p>客户端伪造</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-FORWARDED-FOR：　1.1.1.1</span><br></pre></td></tr></table></figure>
+<p>经过两次代理（192.168.1.2,192.168.1.3）之后：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-FORWARDED-FOR：　1.1.1.1,108.10.10.123,192.168.1.2,192.168.1.3</span><br></pre></td></tr></table></figure>
+<p>这样获取到的IP地址是1.1.1.1，而不是真正的108.10.10.123。其实真实IP已经在列表中了，怎么避免获取伪造的IP？</p>
+<p>nginx有个realip模块，可以通过set_real_ip_from命令制定代理服务器的IP,因为代理服务器的IP地址都是已知的，所以可以通过从右至左依次获取第一个不在代理IP列表中的合法IP就是用户真实IP地址了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set_real_ip_from  192.168.1.2;</span><br><span class="line">set_real_ip_from  192.168.1.3;</span><br><span class="line">real_ip_header    X-Forwarded-For;</span><br><span class="line">real_ip_recursive on;</span><br></pre></td></tr></table></figure>
+<p>安装realip模块需要重新编译nginx，比较麻烦，也可以直接通过最上层代理（第一层代理）服务器获取用户真实IP，写入http头部，后端服务优先获取此参数即可。比如：第一层代理是nginx,将remote_addr参数写入X-Real-IP，后端优先获取此参数，其他代理不要覆盖此参数即可；由于参数是覆盖写入的，就算客户端伪造一个X-Real-IP参数头，也会被代理服务器复写为真实的IP.</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1e0124de8e02">https://www.jianshu.com/p/1e0124de8e02</a><br><a target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_realip_module.html">http://nginx.org/en/docs/http/ngx_http_realip_module.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://heqiao2010.github.io/2019/06/14/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9EIP/" data-id="ckgkpo8s90027ugww946r2cwb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/06/17/%E4%B8%80%E6%AC%A1%E9%87%8D%E5%86%99RequestMappingHandlerMapping%E7%9A%84%E7%BB%8F%E5%8E%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          记一次重写RequestMappingHandlerMapping的经历
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/13/git%E6%8A%80%E5%B7%A7%E4%B9%8Bgitstash/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">git技巧之git stash</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 heqiao2010<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
