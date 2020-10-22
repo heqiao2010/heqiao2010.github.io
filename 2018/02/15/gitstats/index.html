@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>GitStats不错 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="缘起：2017年老板说要搞一个年终总结，写了一个PPT，老板看了，觉得太虚，需要一些数据展示。而基于git原生的一些代码统计显得太单调了，发现网上大神写的gitstats工具不错。  安装 安装依赖：Git，Python，Gnuplot。 git clone git:&#x2F;&#x2F;github.com&#x2F;hoxu&#x2F;gitstats.git   小插曲：在mac上安装Gnuplot的时候报错：invalid">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GitStats不错">
+<meta property="og:url" content="http://example.com/2018/02/15/gitstats/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="缘起：2017年老板说要搞一个年终总结，写了一个PPT，老板看了，觉得太虚，需要一些数据展示。而基于git原生的一些代码统计显得太单调了，发现网上大神写的gitstats工具不错。  安装 安装依赖：Git，Python，Gnuplot。 git clone git:&#x2F;&#x2F;github.com&#x2F;hoxu&#x2F;gitstats.git   小插曲：在mac上安装Gnuplot的时候报错：invalid">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/xcode-selected.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/solo-statistic.png">
+<meta property="article:published_time" content="2018-02-15T04:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-21T15:21:42.650Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="代码统计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/xcode-selected.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-gitstats" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/02/15/gitstats/" class="article-date">
+  <time datetime="2018-02-15T04:00:00.000Z" itemprop="datePublished">2018-02-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/git/">git</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GitStats不错
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>缘起：2017年老板说要搞一个年终总结，写了一个PPT，老板看了，觉得太虚，需要一些数据展示。而基于git原生的一些代码统计显得太单调了，发现网上大神写的gitstats工具不错。</p>
+</blockquote>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ol>
+<li>安装依赖：Git，Python，Gnuplot。</li>
+<li><code>git clone git://github.com/hoxu/gitstats.git</code></li>
+</ol>
+<ul>
+<li>小插曲：<br>在mac上安装Gnuplot的时候报错：<br><code>invalid active developer path (/Library/Developer/CommandLineTools)</code></li>
+<li>解决方法：<br>在终端中执行如下命令：<br><code>xcode-select --install</code><br><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/xcode-selected.png" alt="插件提示" title="xcode-selected"><br>系统弹出下载xcode相关插件，大概1分钟安装完毕，然后重试OK。</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>gitstats下载下来之后，解压一共有如下几个文件：<br><br>-rw-r–r–@  1 heqiao  staff   1.0K  1  9  2016 Makefile <br><br>-rw-r–r–@  1 heqiao  staff    73B  1  9  2016 arrow-down.gif<br><br>-rw-r–r–@  1 heqiao  staff    71B  1  9  2016 arrow-none.gif<br><br>-rw-r–r–@  1 heqiao  staff    73B  1  9  2016 arrow-up.gif<br><br>drwxr-xr-x@ 10 heqiao  staff   320B  1  9  2016 doc<br><br>-rwxr-xr-x@  1 heqiao  staff    47K  1  9  2016 gitstats<br><br>-rw-r–r–@  1 heqiao  staff   1.6K  1  9  2016 gitstats.css<br><br>-rw-r–r–@  1 heqiao  staff   9.3K  1  9  2016 sortable.js<br></p>
+<p>其中最重要的就是gitstats，这个文件，实际上是个python脚本，运行：<br><code>./gitstats [git仓库] [统计文件输出文件夹]</code>得到如下输出：<br><br>[0.01650] &gt;&gt; gnuplot –version<br><br>Output path: /Users/heqiao/Downloads/hoxu-gitstats-55c5c28/result<br><br>Git path: solo/<br><br>Collecting data…<br><br>[0.11579] &gt;&gt; git shortlog -s HEAD | wc -l<br><br>[0.00874] &gt;&gt; git show-ref –tags<br><br>[0.00897] &gt;&gt; git log “3580b4353004c88c8b8e6283aea1889be149074a” –pretty=format:”%at %aN” -n 1<br><br>[0.00794] &gt;&gt; git log “0473873adfc4820e1371f112325b8d733aec11f8” –pretty=format:”%at %aN” -n 1<br><br>[0.00774] &gt;&gt; git log “f302f95132b561b2d906b47c64cb5a2c8f6775f9” –pretty=format:”%at %aN” -n 1<br><br>[0.00895] &gt;&gt; git log “d78c8dc9e1e9f8bdfa047f2e4435daaf941c0d5a” –pretty=format:”%at %aN” -n 1<br><br>[0.01002] &gt;&gt; git log “80b05fb7bd09f860a8e79ceee61cf787aa6682ca” –pretty=format:”%at %aN” -n 1<br><br>[0.00767] &gt;&gt; git log “93f81cd81508f2c8a8fb64b6e4286062c023885e” –pretty=format:”%at %aN” -n 1<br><br>[0.00758] &gt;&gt; git log “1326eddf83578d992a4f08e45a5ddf3c9dd82431” –pretty=format:”%at %aN” -n 1<br><br>[0.00756] &gt;&gt; git log “a6356478a743cb681f70649d4791cc9586b5698e” –pretty=format:”%at %aN” -n 1<br><br>[0.00843] &gt;&gt; git log “d7a38706a7489edf997c9142ab2bf2e62ebc7ca8” –pretty=format:”%at %aN” -n 1<br><br>[0.00825] &gt;&gt; git log “c457ef0f91a880da238873790505e522d802484c” –pretty=format:”%at %aN” -n 1<br><br>[0.01002] &gt;&gt; git log “d8608b5ce71aaa44a3afd8d34d730dadc7dd63ce” –pretty=format:”%at %aN” -n 1<br><br>[0.00878] &gt;&gt; git log “869a4500faaffe27d3b075d293d7246ef4f98740” –pretty=format:”%at %aN” -n 1<br><br>…<br></p>
+<p>生成的统计文件后，用浏览器打开目录中的index.html即可。SOLO项目的代码统计：<br><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/solo-statistic.png" alt="统计文件" title="solo-statistic"></p>
+<p>此外，为了让一些前端同学（不熟悉python和linux环境）也能用这个工具，自己写了一个能够用web访问的小工具：</p>
+<p>见：<a target="_blank" rel="noopener" href="https://github.com/heqiao2010/webGitstats">https://github.com/heqiao2010/webGitstats</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/02/15/gitstats/" data-id="ckgkbt1me0013a2wwcpcp18rz" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/06/newstart/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          一个全新的开始
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sping%E5%9F%BA%E7%A1%80/">Sping基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring%E5%9F%BA%E7%A1%80/">Spring基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/github%E7%8E%A9%E5%AE%B6%E5%9F%BA%E6%9C%AC%E5%8A%9F/">github玩家基本功</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

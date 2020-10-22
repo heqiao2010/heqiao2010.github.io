@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-Spring_Security如何优雅的过滤掉静态页面请求" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/" class="article-date">
+  <time datetime="2020-06-30T10:00:00.000Z" itemprop="datePublished">2020-06-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Spring/">Spring</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在最近的开发过程中遇到一个问题，某个java服务采用spring security开启了认证，但是同时又需要采用swagger生成在线api文档，如果从这些请求中过滤掉swagger的请求成了一个问题。</p>
+</blockquote>
+<p>想到的方法一,用正则过滤：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@EnableWebSecurity</span><br><span class="line">public class WebSecurityConfig extends WebSecurityConfigurerAdapter &#123;</span><br><span class="line">    @Override</span><br><span class="line">    protected void configure(HttpSecurity http) throws Exception &#123;</span><br><span class="line">        http.csrf().disable();</span><br><span class="line">        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);</span><br><span class="line">        http.authorizeRequests()</span><br><span class="line">                .antMatchers(&quot;&#x2F;xxx&#x2F;!?(doc.html|v2&#x2F;api-docs|springfox.js|swagger-ui.html|swagger-resources|webjars)**&quot;).authenticated();</span><br><span class="line">        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);</span><br><span class="line">        http.exceptionHandling().authenticationEntryPoint(new ComIdAuthenticationEntryPoint());</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>更优雅的方法二，把Swagger的请求当做静态页面请求处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">@EnableWebSecurity</span><br><span class="line">public class WebSecurityConfig extends WebSecurityConfigurerAdapter &#123;</span><br><span class="line"></span><br><span class="line">    private List&lt;String&gt; PERMIT_URL_LIST &#x3D; ImmutableList.of(</span><br><span class="line">            &quot;&#x2F;xxx&#x2F;doc.html*&quot;,</span><br><span class="line">            &quot;&#x2F;xxx&#x2F;v2&#x2F;api-docs&#x2F;**&quot;,</span><br><span class="line">            &quot;&#x2F;xxx&#x2F;springfox.js*&quot;,</span><br><span class="line">            &quot;&#x2F;xxx&#x2F;swagger-ui.html*&quot;,</span><br><span class="line">            &quot;&#x2F;xxx&#x2F;swagger-resources&#x2F;**&quot;,</span><br><span class="line">            &quot;&#x2F;xxx&#x2F;webjars&#x2F;**&quot;);</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void configure(HttpSecurity http) throws Exception &#123;</span><br><span class="line">        http.csrf().disable();</span><br><span class="line">        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);</span><br><span class="line">        http.authorizeRequests()</span><br><span class="line">                .antMatchers(&quot;&#x2F;xxx&#x2F;**&quot;).authenticated();</span><br><span class="line">        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);</span><br><span class="line">        http.exceptionHandling().authenticationEntryPoint(new ComIdAuthenticationEntryPoint());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void configure(WebSecurity web) throws Exception &#123;</span><br><span class="line">        web.ignoring().antMatchers(PERMIT_URL_LIST.toArray(new String[0]));</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/" data-id="ckgkbt1m9000oa2wwb41fc5pu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-志归档工具logrotate介绍" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/" class="article-date">
+  <time datetime="2020-06-17T10:00:00.000Z" itemprop="datePublished">2020-06-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/logrotate/">logrotate</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h3><p>对于日志的归档，轮转以及清理，很多框架都已经支持，比如logback，log4j等，对于logrotate鲜有用武之地。</p>
+<p>不过最近做一个项目的时候，客户环境存在大量的syslog，但是对这类syslog日志确没有做定时的清理和归档，于是看了下centos自带的logrotate工具，还是蛮方便的。</p>
+<h3 id="业务需求"><a href="#业务需求" class="headerlink" title="业务需求"></a>业务需求</h3><p>希望能够做到日志轮转，保留一周的日志，每天的日志保存到一个文件中，一周之前的日志，自动删除；2天之前的日志能够归档压缩；</p>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>在/etc/logrotate.d/目录新增logrotate配置，例如：<br>cat /etc/logrotate.d/test</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;data&#x2F;log&#x2F;test.log &#123;</span><br><span class="line">        daily    #每天执行</span><br><span class="line">        missingok # 如果日志不存在，则忽略</span><br><span class="line">        rotate 7  # 保留7天的日志</span><br><span class="line">        create 644 root root  # 新创建文件权限</span><br><span class="line">        dateext  # 用日期作为文件名后缀</span><br><span class="line">        dateformat -%Y%m%d.%s #日期格式</span><br><span class="line">        nocompress  #不需要压缩，compress 表示用gzip压缩</span><br><span class="line">        copytruncate #采用拷贝后截断的方式，归档日志，好处是避免日志归档对正在写这个log的程序出现问题 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://blog.huoding.com/2013/04/21/246">https://blog.huoding.com/2013/04/21/246</a></p>
+<p><a target="_blank" rel="noopener" href="https://linux.die.net/man/8/logrotate">https://linux.die.net/man/8/logrotate</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/" data-id="ckgkbt1mr0028a2wwha8q8o2s" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Freemarker中如何进行Json转化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/" class="article-date">
+  <time datetime="2019-07-26T10:00:00.000Z" itemprop="datePublished">2019-07-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Freemarker/">Freemarker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h3><p>之前在开发过程中,freemarker的解析经常遇见一些问题,这里将这些问题做一下记录.</p>
+<p>比如,如下错误,是因为freemarker模板中出现了一个全角的中文空格,导致解析出现失败.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error:(1, 1) java: 非法字符: &#39;\ufeff&#39;</span><br></pre></td></tr></table></figure>
+
+<h3 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h3><p>需求是,从freemarker中构造出一个Json,然后将这个json进行url编码,放到一个url后面,用户点击这个url,则立即可以跳转到指定的页面,页面再根据这个参数做相应的解析.</p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>在freemarker中,是通过拼凑Json字段进行处理的.在拼凑Json字段的过程中,会涉及字段的转义:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">event.params.group?j_string</span><br></pre></td></tr></table></figure>
+<p>以及urlencode:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign url_param&#x3D;&quot;search&#x3D;$&#123;search?url&#125;&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>还有特别重要的是,有些字段需要判空,判空有好几种形式:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;#--条件判空--&gt;</span><br><span class="line">&lt;#if event.params.processName?? &gt;</span><br><span class="line">       		     	&lt;#assign processName &#x3D; event.params.processName?j_string &#x2F;&gt; </span><br><span class="line">&lt;&#x2F;#if&gt; </span><br><span class="line"></span><br><span class="line">&lt;#--感叹号判空--&gt;</span><br><span class="line">&lt;#assign filePath &#x3D; (event.params.filePath!&quot;&quot;)?j_string &#x2F;&gt;</span><br><span class="line"></span><br><span class="line">&lt;#--为空,则展示为空串--&gt;</span><br><span class="line">$&#123;(grouplist)!&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>整体例子:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">&lt;#macro detailLinkParams aggregateAgentEvents&gt;</span><br><span class="line">        &lt;#setting url_escaping_charset&#x3D;&#39;utf8&#39;&#x2F;&gt;</span><br><span class="line">        &lt;#if (aggregateAgentEvents?size&gt;0) &gt; </span><br><span class="line">		&lt;#--连接进程--&gt;</span><br><span class="line">		&lt;#assign processName&#x3D;&quot;&quot; &#x2F;&gt;</span><br><span class="line">		&lt;#--业务组--&gt;</span><br><span class="line">		&lt;#assign group&#x3D;[] &#x2F;&gt;</span><br><span class="line">		&lt;#--主机名--&gt;</span><br><span class="line">		&lt;#assign hostname&#x3D;&quot;&quot; &#x2F;&gt;</span><br><span class="line">		&lt;#--端口--&gt;</span><br><span class="line">		&lt;#assign targetPort&#x3D;&quot;&quot; &#x2F;&gt;</span><br><span class="line">		&lt;#--目标主机--&gt;</span><br><span class="line">		&lt;#assign targetIpLike&#x3D;&quot;&quot; &#x2F;&gt;</span><br><span class="line">		&lt;#--主机IP--&gt;</span><br><span class="line">		&lt;#assign ip&#x3D;&quot;&quot; &#x2F;&gt;</span><br><span class="line">		&lt;#--时间区间--&gt;</span><br><span class="line">		&lt;#assign time_max &#x3D; aggregateAgentEvents[0].params.dataTime&#x2F;&gt;</span><br><span class="line">		&lt;#assign time_min &#x3D; aggregateAgentEvents[0].params.dataTime&#x2F;&gt;</span><br><span class="line">                &lt;#list aggregateAgentEvents as event&gt; </span><br><span class="line">		     &lt;#if event.params.group?? &amp;&amp; !(group?seq_contains(event.params.group?j_string)) &gt; </span><br><span class="line">		     	&lt;#assign group &#x3D; group + [event.params.group?j_string] &#x2F;&gt;</span><br><span class="line">		     &lt;&#x2F;#if&gt; </span><br><span class="line">		     &lt;#if event.params.processName?? &gt;</span><br><span class="line">       		     	&lt;#assign processName &#x3D; event.params.processName?j_string &#x2F;&gt; </span><br><span class="line">		     &lt;&#x2F;#if&gt;         </span><br><span class="line">		     &lt;#if event.params.hostname?? &gt;              </span><br><span class="line">		     	&lt;#assign hostname &#x3D; event.params.hostname?j_string &#x2F;&gt;  </span><br><span class="line">		     &lt;&#x2F;#if&gt;</span><br><span class="line">		     &lt;#if event.params.targetPort?? &gt;    </span><br><span class="line">		     	&lt;#assign targetPort &#x3D; event.params.targetPort?j_string &#x2F;&gt;</span><br><span class="line">		     &lt;&#x2F;#if&gt;</span><br><span class="line">		     &lt;#if event.params.targetIp?? &gt;    </span><br><span class="line">		     	&lt;#assign targetIpLike &#x3D; event.params.targetIp?j_string &#x2F;&gt;</span><br><span class="line">		     &lt;&#x2F;#if&gt;</span><br><span class="line">		     &lt;#if event.params.displayIp?? &gt;    </span><br><span class="line">		     	&lt;#assign ip &#x3D; event.params.displayIp?j_string &#x2F;&gt;</span><br><span class="line">		     &lt;&#x2F;#if&gt;</span><br><span class="line">		     &lt;#if (time_max &lt; event.params.dataTime) &gt;</span><br><span class="line">                            &lt;#assign time_max &#x3D; event.params.dataTime &#x2F;&gt;</span><br><span class="line">                     &lt;&#x2F;#if&gt;</span><br><span class="line">                     &lt;#if (time_min &gt; event.params.dataTime) &gt;</span><br><span class="line">                            &lt;#assign time_min &#x3D; event.params.dataTime &#x2F;&gt;</span><br><span class="line">                     &lt;&#x2F;#if&gt;</span><br><span class="line">                &lt;&#x2F;#list&gt;</span><br><span class="line">                &lt;#assign time_max &#x3D; time_max + 1&#x2F;&gt;</span><br><span class="line">		&lt;#assign time_min &#x3D; time_min - 1&#x2F;&gt;</span><br><span class="line">                &lt;#assign time&#x3D;&quot;&#123;\&quot;min\&quot;:\&quot;$&#123;(time_min*1000)?number_to_datetime?string(&#39;yyyy-MM-dd HH:mm:ss&#39;)&#125;\&quot;,\&quot;max\&quot;:\&quot;$&#123;(time_max*1000)?number_to_datetime?string(&#39;yyyy-MM-dd HH:mm:ss&#39;)&#125;\&quot;&#125;&quot;&#x2F;&gt;</span><br><span class="line">                &lt;#assign grouplist &#x3D; group?join(&quot;,&quot;) &#x2F;&gt;</span><br><span class="line">		&lt;#if (aggregateAgentEvents?size&#x3D;&#x3D;1) &gt;</span><br><span class="line">			&lt;#assign search&#x3D;&quot;&#123;\&quot;processName\&quot;:\&quot;$&#123;(processName)!&#125;\&quot;,\&quot;createTime\&quot;:$&#123;time&#125;,\&quot;group\&quot;:[$&#123;(grouplist)!&#125;],\&quot;ip\&quot;:\&quot;$&#123;(ip)!&#125;\&quot;,\&quot;targetIpLike\&quot;:\&quot;$&#123;(targetIpLike)!&#125;\&quot;,\&quot;targetPort\&quot;:$&#123;(targetPort)!&#125;,\&quot;hostname\&quot;:\&quot;$&#123;(hostname)!&#125;\&quot;&#125;&quot;&#x2F;&gt;</span><br><span class="line">		&lt;#else&gt;</span><br><span class="line">			&lt;#assign search&#x3D;&quot;&#123;\&quot;processName\&quot;:\&quot;$&#123;(processName)!&#125;\&quot;,\&quot;createTime\&quot;:$&#123;time&#125;,\&quot;group\&quot;:[$&#123;(grouplist)!&#125;],\&quot;ip\&quot;:\&quot;$&#123;(ip)!&#125;\&quot;,\&quot;targetIpLike\&quot;:\&quot;$&#123;(targetIpLike)!&#125;\&quot;,\&quot;targetPort\&quot;:$&#123;(targetPort)!&#125;,\&quot;hostname\&quot;:\&quot;$&#123;(hostname)!&#125;\&quot;&#125;&quot;&#x2F;&gt;</span><br><span class="line">		&lt;&#x2F;#if&gt;</span><br><span class="line">                &lt;#assign url_param&#x3D;&quot;search&#x3D;$&#123;search?url&#125;&quot; &#x2F;&gt;</span><br><span class="line">	&lt;#else&gt;</span><br><span class="line">		&lt;#assign url_param&#x3D;&quot;a&#x3D;1&quot;&#x2F;&gt;</span><br><span class="line">	&lt;&#x2F;#if&gt;</span><br><span class="line">$&#123;url_param&#125;&lt;&#x2F;#macro&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="额外的问题"><a href="#额外的问题" class="headerlink" title="额外的问题"></a>额外的问题</h3><p>FreeMarker遍历集合集合时貌似有个要求，集合本身必须是Collection的子类；如果将jackson的JsonNode对象，扔给Freemarker则可能会有问题，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">	&#123;</span><br><span class="line">    &quot;vuls&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;vuln&quot;: 1,</span><br><span class="line">            &quot;port&quot;: 6379,</span><br><span class="line">            &quot;title&quot;: &quot;xxx&quot;,</span><br><span class="line">            &quot;checkid&quot;: 7,</span><br><span class="line">            &quot;msg&quot;: &quot;xxx!&quot;,</span><br><span class="line">            &quot;hacked_file&quot;: [</span><br><span class="line">                &#123;</span><br><span class="line">                    &quot;info&quot;: &quot;xxx&quot;,</span><br><span class="line">                    &quot;path&quot;: &quot;xxx&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            ],</span><br><span class="line">            &quot;pid&quot;: 1351</span><br><span class="line">        &#125;</span><br><span class="line">		]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果通过如下模板进行解析，则会出现问题，因为json对象中的数组，无法用freemarker中的list遍历，这点很奇怪。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">XXX ：</span><br><span class="line">&lt;#list vuls as vul&gt;</span><br><span class="line"> &lt;#list vul.hacked_file as item&gt;</span><br><span class="line">  xx：$&#123;item.path&#125;,xxx：$&#123;item.info&#125;</span><br><span class="line"> &lt;&#x2F;#list&gt;</span><br><span class="line">&lt;&#x2F;#list&gt;</span><br></pre></td></tr></table></figure>
+
+<p>但是可以通过把JsonNode当做字符串处理，在freemarker中用eval进行处理，则没问题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;#function parseJSON json&gt;</span><br><span class="line">  &lt;#local null &#x3D; &#39;null&#39;&gt; &lt;#-- null is not a keyword in FTL --&gt;</span><br><span class="line">  &lt;#return json?eval&gt;</span><br><span class="line">&lt;&#x2F;#function&gt;</span><br><span class="line">&lt;#assign jsonObj&#x3D;parseJSON(vuls)&#x2F;&gt;</span><br><span class="line">XXX ：</span><br><span class="line">&lt;#list jsonObj as vul&gt;</span><br><span class="line"> &lt;#list vul.hacked_file as item&gt;</span><br><span class="line">  xx：$&#123;item.path&#125;,xxx：$&#123;item.info&#125;</span><br><span class="line"> &lt;&#x2F;#list&gt;</span><br><span class="line">&lt;&#x2F;#list&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/46154391/how-can-i-iterate-a-collection-twice-in-freemarker#">https://stackoverflow.com/questions/46154391/how-can-i-iterate-a-collection-twice-in-freemarker#</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/17778844/evaluate-json-with-null-value-using-freemarker">https://stackoverflow.com/questions/17778844/evaluate-json-with-null-value-using-freemarker</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12708162/how-to-get-json-into-a-freemarker-template-ftl">https://stackoverflow.com/questions/12708162/how-to-get-json-into-a-freemarker-template-ftl</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/" data-id="ckgkbt1ly0004a2wwfp8q71dd" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ControllerAdvice注解" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/" class="article-date">
+  <time datetime="2019-07-08T10:00:00.000Z" itemprop="datePublished">2019-07-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Sping%E5%9F%BA%E7%A1%80/">Sping基础</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="基本功能"><a href="#基本功能" class="headerlink" title="基本功能"></a>基本功能</h3><p>准确的来说,这个是springmvc中的一个注解.<br>从Advice后缀可以看出,这个注解是针对Controller的一个增强.在对外提供Http接口支持的时候,往往有很多通用的业务逻辑.最常见的是同样的异常处理逻辑.<br>为了避免大块的try-catch块的出现,可以通过此注解提供一个异常处理的增强来解决.</p>
+<h4 id="ExceptionHandler"><a href="#ExceptionHandler" class="headerlink" title="@ExceptionHandler"></a>@ExceptionHandler</h4><p>在ControllerAdvice类中标注某个方法,用于处理某个类型的异常.</p>
+<p>例子:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 统一处理网关接口异常</span><br><span class="line"> *</span><br><span class="line"> * Created by qiaohe on 19-6-27.</span><br><span class="line"> *&#x2F;</span><br><span class="line">@Component</span><br><span class="line">@ControllerAdvice(&quot;com.*&quot;)</span><br><span class="line">public class ExceptionAdvice &#123;</span><br><span class="line">    private final Logger logger &#x3D; LoggerFactory.getLogger(ExceptionAdvice.class);</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 处理AuthFailedException</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @ExceptionHandler(AuthFailedException.class)</span><br><span class="line">    @ResponseBody</span><br><span class="line">    public BaseResult handleException(AuthFailedException ex)&#123;</span><br><span class="line">        return BaseResult.failure(ex.getAuthFailedCode().getCode(),</span><br><span class="line">                ex.getAuthFailedCode().getDesc());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="其他两个不常用的注解"><a href="#其他两个不常用的注解" class="headerlink" title="其他两个不常用的注解"></a>其他两个不常用的注解</h4><p>@InitBinder：用来设置WebDataBinder，用于自动绑定前台请求参数到Model中。</p>
+<p>@ModelAttribute：本来作用是绑定键值对到Model中，此处让全局的@RequestMapping都能获得在此处设置的键值对。</p>
+<p>列子:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@ControllerAdvice(basePackages &#x3D; &#123;&quot;com.concretepage.controller&quot;&#125; )</span><br><span class="line">public class GlobalControllerAdvice &#123;</span><br><span class="line">	@InitBinder</span><br><span class="line">	public void dataBinding(WebDataBinder binder) &#123;</span><br><span class="line">		SimpleDateFormat dateFormat &#x3D; new SimpleDateFormat(&quot;dd&#x2F;MM&#x2F;yyyy&quot;);</span><br><span class="line">		dateFormat.setLenient(false);</span><br><span class="line">		binder.registerCustomEditor(Date.class, &quot;dob&quot;, new CustomDateEditor(dateFormat, true));</span><br><span class="line">	&#125;</span><br><span class="line">	@ModelAttribute</span><br><span class="line">        public void globalAttributes(Model model) &#123;</span><br><span class="line">		model.addAttribute(&quot;msg&quot;, &quot;Welcome to My World!&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">	@ExceptionHandler(FileNotFoundException.class)</span><br><span class="line">        public ModelAndView myError(Exception exception) &#123;</span><br><span class="line">	    ModelAndView mav &#x3D; new ModelAndView();</span><br><span class="line">	    mav.addObject(&quot;exception&quot;, exception);</span><br><span class="line">	    mav.setViewName(&quot;error&quot;);</span><br><span class="line">	    return mav;</span><br><span class="line">	&#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.concretepage.com/spring/spring-mvc/spring-mvc-controlleradvice-annotation-example">https://www.concretepage.com/spring/spring-mvc/spring-mvc-controlleradvice-annotation-example</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/" data-id="ckgkbt1lr0000a2wwh1lv0ed0" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Spring学习之Profile和Lookup注解" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/" class="article-date">
+  <time datetime="2019-07-02T10:00:00.000Z" itemprop="datePublished">2019-07-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Sping%E5%9F%BA%E7%A1%80/">Sping基础</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在编码过程中遇到一个Profile和Lookup注解的问题,这里记录一下.Profile的原意是剖面的意思,Profile在官方的API文档中,是如此描述的:</p>
+</blockquote>
+<blockquote>
+<p>A profile is a named logical grouping that may be activated programmatically via ConfigurableEnvironment.setActiveProfiles(java.lang.String…) or declaratively by setting the spring.profiles.active property as a JVM system property, as an environment variable, or as a Servlet context parameter in web.xml for web applications. Profiles may also be activated declaratively in integration tests via the @ActiveProfiles annotation.</p>
+</blockquote>
+<blockquote>
+<p>通过Profile可以从逻辑上对Bean做一些分组,然后应用中通过配置来选中某一组Bean进行实例化.Lookup注解是用于实现,注入prototype-scoped类型的Bean,一般我们可能习惯用new的方式去实例化非单例模式的Bean.</p>
+</blockquote>
+<h3 id="Profile注解示例"><a href="#Profile注解示例" class="headerlink" title="Profile注解示例"></a>Profile注解示例</h3><p>实现开发环境和生产环境采用不同的数据源.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 开发环境采用mysql数据库</span><br><span class="line">@Profile(&quot;Development&quot;)</span><br><span class="line">@Configuration</span><br><span class="line">public class DevDatabaseConfig implements DatabaseConfig &#123;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    @Bean</span><br><span class="line">    public DataSource createDataSource() &#123;</span><br><span class="line">        System.out.println(&quot;Creating DEV database&quot;);</span><br><span class="line">        DriverManagerDataSource dataSource &#x3D; new DriverManagerDataSource();</span><br><span class="line">        &#x2F;*</span><br><span class="line">         * Set MySQL specific properties for Development Environment</span><br><span class="line">         *&#x2F;</span><br><span class="line">        return dataSource;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 生产环境采用Oracle数据库</span><br><span class="line">@Profile(&quot;Production&quot;)</span><br><span class="line">@Configuration</span><br><span class="line">public class ProductionDatabaseConfig implements DatabaseConfig &#123;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    @Bean</span><br><span class="line">    public DataSource createDataSource() &#123;</span><br><span class="line">        System.out.println(&quot;Creating Production database&quot;);</span><br><span class="line">        DriverManagerDataSource dataSource &#x3D; new DriverManagerDataSource();</span><br><span class="line">        &#x2F;*</span><br><span class="line">         * Set ORACLE specific properties for Production environment</span><br><span class="line">         *&#x2F;</span><br><span class="line">        return dataSource;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了采用注解,使用配置文件也可以达到同样的效果.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;beans profile&#x3D;&quot;Development&quot;&gt;</span><br><span class="line">    &lt;import resource&#x3D;&quot;dev-config-context.xml&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;beans&gt;</span><br><span class="line"> </span><br><span class="line">&lt;beans profile&#x3D;&quot;Production&quot;&gt;</span><br><span class="line">    &lt;import resource&#x3D;&quot;prod-config-context.xml&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;beans&gt;</span><br></pre></td></tr></table></figure>
+
+<p>测试:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class AppMain &#123;</span><br><span class="line">     </span><br><span class="line">    public static void main(String args[])&#123;</span><br><span class="line">        AnnotationConfigApplicationContext  context &#x3D; new AnnotationConfigApplicationContext();</span><br><span class="line">        &#x2F;&#x2F;Sets the active profiles</span><br><span class="line">        context.getEnvironment().setActiveProfiles(&quot;Development&quot;);</span><br><span class="line">        &#x2F;&#x2F;Scans the mentioned package[s] and register all the @Component available to Spring</span><br><span class="line">        context.scan(&quot;com.websystique.spring&quot;); </span><br><span class="line">        context.refresh();</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Lookup注解"><a href="#Lookup注解" class="headerlink" title="Lookup注解"></a>Lookup注解</h3><p>lookup可以实现方法注入,即利用lookup可以让某个单例Bean的某个方法每次都返回一个新的Bean,即prototype类型的Bean.这是依赖CGlib技术实现的,在运行时,修改字节码.</p>
+<p>利用xml文件实现:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id&#x3D;&quot;car&quot; class&#x3D;&quot;com.smart.injectfun.Car&quot; p:brand&#x3D;&quot;红旗CA72&quot;, p:price&#x3D;&quot;2000&quot; scope&#x3D;&quot;prototype&quot; &#x2F;&gt;</span><br><span class="line"></span><br><span class="line">&lt;bean id&#x3D;&quot;magicBoss&quot; class&#x3D;&quot;com.smart.injectfun.MagicBoss&quot;&gt;</span><br><span class="line">    &lt;look-method name&#x3D;&quot;getCar&quot; bean&#x3D;&quot;car&quot;&gt;</span><br><span class="line">&lt;bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>也可以通过注解来实现:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class MagicBossIMpl implements MagicBoss &#123;</span><br><span class="line">    @Lookup</span><br><span class="line">    public Car getCar()&#123;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.baeldung.com/spring-lookup">https://www.baeldung.com/spring-lookup</a></p>
+<p><a target="_blank" rel="noopener" href="http://websystique.com/spring/spring-profile-example/">http://websystique.com/spring/spring-profile-example/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/" data-id="ckgkbt1ma000sa2ww84lv1s86" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Java诊断工具Arthas之watch命令" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/01/Java%E8%AF%8A%E6%96%AD%E5%B7%A5%E5%85%B7Arthas%E4%B9%8Bwatch%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time datetime="2019-07-01T10:00:00.000Z" itemprop="datePublished">2019-07-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Arthas/">Arthas</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/01/Java%E8%AF%8A%E6%96%AD%E5%B7%A5%E5%85%B7Arthas%E4%B9%8Bwatch%E5%91%BD%E4%BB%A4/">Java诊断工具Arthas之watch命令</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Arthas是一个开源的Java诊断工具,详见:<a target="_blank" rel="noopener" href="https://alibaba.github.io/arthas/index.html">https://alibaba.github.io/arthas/index.html</a>. 今天第一次在项目中排查问题使用到它,发现其功能确实很强大.这里记录一下watch命令的使用.</p>
+</blockquote>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装JDK然后以jar包的形式运行即可.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;alibaba.github.io&#x2F;arthas&#x2F;arthas-boot.jar</span><br><span class="line">java -jar arthas-boot.jar</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用watch诊断方法调用"><a href="#利用watch诊断方法调用" class="headerlink" title="利用watch诊断方法调用"></a>利用watch诊断方法调用</h3><p>通过Arthas的watch方法可以在没有打印日志的情况下,看到方法的入参和返回值.这点在没有打印debug或者重启会破坏现场的情况下是非常有用的。</p>
+<p>在运行arthas-boot.jar之后，会列出当前系统中的所有java进程，然后输入需要诊断的进程的序号，就进入了arthas的命令模式了。这里以官网上的java -jar arthas-demo.jar为例，毕竟为了信息安全，把在公司的debug信息透出不大好。</p>
+<ol>
+<li><p>首先可以利用sc命令，查询对应的类名。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ sc *Math*</span><br><span class="line">demo.MathGame</span><br><span class="line">io.netty.util.internal.MathUtil</span><br><span class="line">java.lang.Math</span><br><span class="line">Affect(row-cnt:3) cost in 17 ms.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然后再用sm命令，查询对应的方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ sm demo.MathGame*</span><br><span class="line">demo.MathGame &lt;init&gt;()V</span><br><span class="line">demo.MathGame primeFactors(I)Ljava&#x2F;util&#x2F;List;</span><br><span class="line">demo.MathGame main([Ljava&#x2F;lang&#x2F;String;)V</span><br><span class="line">demo.MathGame run()V</span><br><span class="line">demo.MathGame print(ILjava&#x2F;util&#x2F;List;)V</span><br><span class="line">Affect(row-cnt:5) cost in 9 ms.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>利用watch命令，监听指定的方法，-x 参数可以指定打印入参和返回值的深度。</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ watch demo.MathGame primeFactors &quot;&#123;params,returnObj&#125;&quot; -x 2</span><br><span class="line">Press Q or Ctrl+C to abort.</span><br><span class="line">Affect(class-cnt:1 , method-cnt:1) cost in 49 ms.</span><br><span class="line">ts&#x3D;2019-07-03 14:29:41; [cost&#x3D;1.778091ms] result&#x3D;@ArrayList[</span><br><span class="line">    @Object[][</span><br><span class="line">        @Integer[-136776],</span><br><span class="line">    ],</span><br><span class="line">    null,</span><br><span class="line">]</span><br><span class="line">ts&#x3D;2019-07-03 14:29:42; [cost&#x3D;0.105508ms] result&#x3D;@ArrayList[</span><br><span class="line">    @Object[][</span><br><span class="line">        @Integer[47524],</span><br><span class="line">    ],</span><br><span class="line">    @ArrayList[</span><br><span class="line">        @Integer[2],</span><br><span class="line">        @Integer[2],</span><br><span class="line">        @Integer[109],</span><br><span class="line">        @Integer[109],</span><br><span class="line">    ],</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>我就是利用这个工具，诊断出系统中一个很奇怪的问题。最终原因是因为PHP程序调用Java接口在时序上有略微的差异导致的。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/07/01/Java%E8%AF%8A%E6%96%AD%E5%B7%A5%E5%85%B7Arthas%E4%B9%8Bwatch%E5%91%BD%E4%BB%A4/" data-id="ckgkbt1m4000fa2ww6qlxae94" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-JUC共享锁之Semaphore" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/24/JUC%E5%85%B1%E4%BA%AB%E9%94%81%E4%B9%8BSemaphore/" class="article-date">
+  <time datetime="2019-06-24T10:00:00.000Z" itemprop="datePublished">2019-06-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/24/JUC%E5%85%B1%E4%BA%AB%E9%94%81%E4%B9%8BSemaphore/">JUC共享锁之Semaphore</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Semaphore原意是指信号量,从API的注释:”Semaphores are often used to restrict the number of threads than can access some (physical or logical) resource”可以看出,Semaphore一般是用来限制线程能够使用的资源个数.</p>
+</blockquote>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>在Web开发中,Semaphore可以用来限制某个接口的并发调用次数.可以在Sping的Context中维护一个Map,key可以是处理线程,value可以是一个Semaphore对象.通过这样的方式,就可以实现系统同时处理的线程数不会超过某个阈值.</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>我们可以通过WebFilter注解,来实现一个过滤器,在过滤器中拦截所有的请求调用,然后通过Semaphore来进行计数,如果超过总的计数,则返回相应的提示信息.当然也可以对URL进行细化,针对每个API提供对应的限制.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * API并发控制过滤器</span><br><span class="line"> * Created by qiaohe</span><br><span class="line"> * Date: 19-7-1 上午11:54</span><br><span class="line"> *&#x2F;</span><br><span class="line">@Component</span><br><span class="line">@WebFilter(urlPatterns &#x3D; &quot;&#x2F;*&quot;, filterName &#x3D; &quot;concurrentRestrictFilter&quot;)</span><br><span class="line">public class ConcurrentRestrictFilter implements Filter &#123;</span><br><span class="line">    private Log log &#x3D; LogFactory.getLog(getClass());</span><br><span class="line"></span><br><span class="line">    private static final Integer MAX_CONCURRENT_NUM &#x3D; 1;</span><br><span class="line"></span><br><span class="line">    private static final Semaphore semaphore &#x3D; new Semaphore(MAX_CONCURRENT_NUM);</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void init(FilterConfig filterConfig) throws ServletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException &#123;</span><br><span class="line">        log.info(&quot;before acquire: &quot; + semaphore.availablePermits());</span><br><span class="line">        if(!semaphore.tryAcquire())&#123;</span><br><span class="line">            if(response instanceof HttpServletResponse)&#123;</span><br><span class="line">                HttpServletResponse res &#x3D; (HttpServletResponse)response;</span><br><span class="line">                res.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);</span><br><span class="line">                res.sendError(HttpStatus.BAD_REQUEST.value(), &quot;reach max current num&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        log.info(&quot;after acquire: &quot; + semaphore.availablePermits());</span><br><span class="line">        try&#123;</span><br><span class="line">            chain.doFilter(request, response);</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            semaphore.release();</span><br><span class="line">            log.info(&quot;release: &quot; + semaphore.availablePermits());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void destroy() &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/06/24/JUC%E5%85%B1%E4%BA%AB%E9%94%81%E4%B9%8BSemaphore/" data-id="ckgkbt1m00006a2wwfdlufhl0" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-如何将jar包发布到中央仓库" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/21/%E5%A6%82%E4%BD%95%E5%B0%86jar%E5%8C%85%E5%8F%91%E5%B8%83%E5%88%B0%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/" class="article-date">
+  <time datetime="2019-06-21T10:00:00.000Z" itemprop="datePublished">2019-06-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/github%E7%8E%A9%E5%AE%B6%E5%9F%BA%E6%9C%AC%E5%8A%9F/">github玩家基本功</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/21/%E5%A6%82%E4%BD%95%E5%B0%86jar%E5%8C%85%E5%8F%91%E5%B8%83%E5%88%B0%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/">如何将jar包发布到中央仓库</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>之前在github上开发了一个简单的项目，一直想把这个jar包发布到中央仓库。一直没有时间弄这个，今天抽出点时间，按照网上的例子，操作了一遍，顺便记录一下，一遍将来参考。我的开发环境是ubuntu18.04，maven3，整个过程还是比较顺利的。</p>
+</blockquote>
+<h2 id="注册JIRA账号"><a href="#注册JIRA账号" class="headerlink" title="注册JIRA账号"></a>注册JIRA账号</h2><p>打开<a target="_blank" rel="noopener" href="https://issues.sonatype.org/secure/Dashboard.jspa">https://issues.sonatype.org/secure/Dashboard.jspa</a> ，用邮箱注册即可。</p>
+<h2 id="创建issue"><a href="#创建issue" class="headerlink" title="创建issue"></a>创建issue</h2><p>需要填写group id项目地址之类的，页面都有示例提示。</p>
+<h2 id="等待审核"><a href="#等待审核" class="headerlink" title="等待审核"></a>等待审核</h2><p>提交的issue需要人工审核，审核之后，issue的状态变为：RESOLVED，到了这一步就可以上传jar包了。</p>
+<h2 id="配置maven-Setting-xml文件"><a href="#配置maven-Setting-xml文件" class="headerlink" title="配置maven Setting.xml文件"></a>配置maven Setting.xml文件</h2><p>maven的Setting.xml文件可以在安装路径的conf目录下，也可以只修改当前用户<code>.m</code>目录下，如果你的电脑是多账户共享的话。在Settings.xml文件中，找到<code>&lt;servers&gt;</code>标签，然后在标签中增加如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;server&gt;</span><br><span class="line">    &lt;id&gt;自行替换&lt;&#x2F;id&gt;</span><br><span class="line">    &lt;username&gt;替换成自己的JIRA账号&lt;&#x2F;username&gt;</span><br><span class="line">    &lt;password&gt;替换成自己的JIRA账号密码&lt;&#x2F;password&gt;</span><br><span class="line">&lt;&#x2F;server&gt;</span><br></pre></td></tr></table></figure>
+<p>id一般写oss就行。需要和pom文件中保持一致。</p>
+<h2 id="修改pom文件"><a href="#修改pom文件" class="headerlink" title="修改pom文件"></a>修改pom文件</h2><p>我这次发布的pom文件内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0&quot;</span><br><span class="line">         xmlns:xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0 http:&#x2F;&#x2F;maven.apache.org&#x2F;xsd&#x2F;maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;&#x2F;modelVersion&gt;</span><br><span class="line"></span><br><span class="line">    &lt;parent&gt;</span><br><span class="line">        &lt;groupId&gt;org.sonatype.oss&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;oss-parent&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;version&gt;7&lt;&#x2F;version&gt;</span><br><span class="line">    &lt;&#x2F;parent&gt;</span><br><span class="line"></span><br><span class="line">    &lt;licenses&gt;</span><br><span class="line">        &lt;license&gt;</span><br><span class="line">            &lt;name&gt;The Apache Software License, Version 2.0&lt;&#x2F;name&gt;</span><br><span class="line">            &lt;url&gt;http:&#x2F;&#x2F;www.apache.org&#x2F;licenses&#x2F;LICENSE-2.0.txt&lt;&#x2F;url&gt;</span><br><span class="line">            &lt;distribution&gt;repo&lt;&#x2F;distribution&gt;</span><br><span class="line">        &lt;&#x2F;license&gt;</span><br><span class="line">    &lt;&#x2F;licenses&gt;</span><br><span class="line">    &lt;scm&gt;</span><br><span class="line">        &lt;url&gt;https:&#x2F;&#x2F;github.com&#x2F;heqiao2010&lt;&#x2F;url&gt;</span><br><span class="line">        &lt;connection&gt;https:&#x2F;&#x2F;github.com&#x2F;heqiao2010&#x2F;LunarCalendar.git&lt;&#x2F;connection&gt;</span><br><span class="line">    &lt;&#x2F;scm&gt;</span><br><span class="line">    &lt;developers&gt;</span><br><span class="line">        &lt;developer&gt;</span><br><span class="line">            &lt;name&gt;Joel Herb&lt;&#x2F;name&gt;</span><br><span class="line">            &lt;email&gt;he_qiao_2010@yeah.net&lt;&#x2F;email&gt;</span><br><span class="line">            &lt;organization&gt;heqiao2010&lt;&#x2F;organization&gt;</span><br><span class="line">        &lt;&#x2F;developer&gt;</span><br><span class="line">    &lt;&#x2F;developers&gt;</span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;project.build.sourceEncoding&gt;UTF-8&lt;&#x2F;project.build.sourceEncoding&gt;</span><br><span class="line">    &lt;&#x2F;properties&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;groupId&gt;com.github.heqiao2010&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;lunar&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.0&lt;&#x2F;version&gt;</span><br><span class="line"></span><br><span class="line">    &lt;name&gt;LunarCalendar&lt;&#x2F;name&gt;</span><br><span class="line">    &lt;description&gt;A Java implementation of Chinese lunar calendar. &lt;&#x2F;description&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;junit&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;junit&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;version&gt;4.12&lt;&#x2F;version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.google.code.gson&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;gson&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;version&gt;2.8.5&lt;&#x2F;version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.apache.httpcomponents&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;httpclient&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;version&gt;4.5.7&lt;&#x2F;version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">    &lt;&#x2F;dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;profiles&gt;</span><br><span class="line">        &lt;profile&gt;</span><br><span class="line">            &lt;id&gt;release&lt;&#x2F;id&gt;</span><br><span class="line">            &lt;build&gt;</span><br><span class="line">                &lt;plugins&gt;</span><br><span class="line">                    &lt;!-- Source --&gt;</span><br><span class="line">                    &lt;plugin&gt;</span><br><span class="line">                        &lt;groupId&gt;org.apache.maven.plugins&lt;&#x2F;groupId&gt;</span><br><span class="line">                        &lt;artifactId&gt;maven-source-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">                        &lt;version&gt;2.2.1&lt;&#x2F;version&gt;</span><br><span class="line">                        &lt;executions&gt;</span><br><span class="line">                            &lt;execution&gt;</span><br><span class="line">                                &lt;phase&gt;package&lt;&#x2F;phase&gt;</span><br><span class="line">                                &lt;goals&gt;</span><br><span class="line">                                    &lt;goal&gt;jar-no-fork&lt;&#x2F;goal&gt;</span><br><span class="line">                                &lt;&#x2F;goals&gt;</span><br><span class="line">                            &lt;&#x2F;execution&gt;</span><br><span class="line">                        &lt;&#x2F;executions&gt;</span><br><span class="line">                    &lt;&#x2F;plugin&gt;</span><br><span class="line">                    &lt;!-- Javadoc --&gt;</span><br><span class="line">                    &lt;plugin&gt;</span><br><span class="line">                        &lt;groupId&gt;org.apache.maven.plugins&lt;&#x2F;groupId&gt;</span><br><span class="line">                        &lt;artifactId&gt;maven-javadoc-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">                        &lt;version&gt;2.9.1&lt;&#x2F;version&gt;</span><br><span class="line">                        &lt;executions&gt;</span><br><span class="line">                            &lt;execution&gt;</span><br><span class="line">                                &lt;phase&gt;package&lt;&#x2F;phase&gt;</span><br><span class="line">                                &lt;goals&gt;</span><br><span class="line">                                    &lt;goal&gt;jar&lt;&#x2F;goal&gt;</span><br><span class="line">                                &lt;&#x2F;goals&gt;</span><br><span class="line">                            &lt;&#x2F;execution&gt;</span><br><span class="line">                        &lt;&#x2F;executions&gt;</span><br><span class="line">                    &lt;&#x2F;plugin&gt;</span><br><span class="line">                    &lt;!-- GPG --&gt;</span><br><span class="line">                    &lt;plugin&gt;</span><br><span class="line">                        &lt;groupId&gt;org.apache.maven.plugins&lt;&#x2F;groupId&gt;</span><br><span class="line">                        &lt;artifactId&gt;maven-gpg-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">                        &lt;version&gt;1.6&lt;&#x2F;version&gt;</span><br><span class="line">                        &lt;executions&gt;</span><br><span class="line">                            &lt;execution&gt;</span><br><span class="line">                                &lt;phase&gt;verify&lt;&#x2F;phase&gt;</span><br><span class="line">                                &lt;goals&gt;</span><br><span class="line">                                    &lt;goal&gt;sign&lt;&#x2F;goal&gt;</span><br><span class="line">                                &lt;&#x2F;goals&gt;</span><br><span class="line">                            &lt;&#x2F;execution&gt;</span><br><span class="line">                        &lt;&#x2F;executions&gt;</span><br><span class="line">                    &lt;&#x2F;plugin&gt;</span><br><span class="line">                &lt;&#x2F;plugins&gt;</span><br><span class="line">            &lt;&#x2F;build&gt;</span><br><span class="line">            &lt;distributionManagement&gt;</span><br><span class="line">                &lt;snapshotRepository&gt;</span><br><span class="line">                    &lt;id&gt;oss&lt;&#x2F;id&gt;</span><br><span class="line">                    &lt;url&gt;https:&#x2F;&#x2F;oss.sonatype.org&#x2F;content&#x2F;repositories&#x2F;snapshots&#x2F;&lt;&#x2F;url&gt;</span><br><span class="line">                &lt;&#x2F;snapshotRepository&gt;</span><br><span class="line">                &lt;repository&gt;</span><br><span class="line">                    &lt;id&gt;oss&lt;&#x2F;id&gt;</span><br><span class="line">                    &lt;url&gt;https:&#x2F;&#x2F;oss.sonatype.org&#x2F;service&#x2F;local&#x2F;staging&#x2F;deploy&#x2F;maven2&#x2F;&lt;&#x2F;url&gt;</span><br><span class="line">                &lt;&#x2F;repository&gt;</span><br><span class="line">            &lt;&#x2F;distributionManagement&gt;</span><br><span class="line">        &lt;&#x2F;profile&gt;</span><br><span class="line">    &lt;&#x2F;profiles&gt;</span><br><span class="line">&lt;&#x2F;project&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="生成并上传密钥"><a href="#生成并上传密钥" class="headerlink" title="生成并上传密钥"></a>生成并上传密钥</h2><p>运行如下命令，根据提示生成密钥，需要设置pharse。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpg --gen-key</span><br></pre></td></tr></table></figure>
+<p>生成的密钥类似：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ gpg --list-keys </span><br><span class="line">&#x2F;home&#x2F;qiaohe&#x2F;.gnupg&#x2F;pubring.gpg</span><br><span class="line">-------------------------------</span><br><span class="line">pub   rsa3072 2019-06-21 [SC] [有效至：2021-06-20]</span><br><span class="line">      812FAC0448CBA6C3E8EA8EA67BA82CF4A21310B2</span><br><span class="line">uid           [ 绝对 ] Joel Herb &lt;he_qiao_2010@yeah.net&gt;</span><br><span class="line">sub   rsa3072 2019-06-21 [E] [有效至：2021-06-20]</span><br></pre></td></tr></table></figure>
+<p>然后上传密钥：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpg --keyserver hkp:&#x2F;&#x2F;keyserver.ubuntu.com:11371 --send-keys 812FAC0448CBA6C3E8EA8EA67BA82CF4A21310B2</span><br></pre></td></tr></table></figure>
+
+<h2 id="执行部署"><a href="#执行部署" class="headerlink" title="执行部署"></a>执行部署</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean deploy -P release</span><br></pre></td></tr></table></figure>
+<p>-P命令用于指定pom文件中profile的id。在编译之后，上传到中央服务器的时候，系统会提示让你输入密钥中的phrase，如果是windows系统可以在编译命令后加上<code>-Dgpg.passphrase=设置的pharse</code></p>
+<p>上传完成之后在<a target="_blank" rel="noopener" href="https://oss.sonatype.org/">https://oss.sonatype.org</a> （登陆账号和新建issue的账号一致）这个页面的staging repositories页签中可以看到刚才上传的内容，默认是open状态的，先点击上方的close然后再点击release即可。注意relesea版本的jar中的版本号不能带SNAPSHOT字样，因为SNAPSHOT版本是不稳定版，不应该release，否则会有歧义，容易引起误解。</p>
+<h2 id="通知管理员"><a href="#通知管理员" class="headerlink" title="通知管理员"></a>通知管理员</h2><p>在之前创建的issue下，评论通知管理员，已经上传jar包了。等管理员操作之后，在中央仓库就可以看到上传的jar包了。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;com.github.heqiao2010&lt;&#x2F;groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;lunar&lt;&#x2F;artifactId&gt;</span><br><span class="line">  &lt;version&gt;1.0&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/ljbmxsm/article/details/78009268">https://blog.csdn.net/ljbmxsm/article/details/78009268</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/06/21/%E5%A6%82%E4%BD%95%E5%B0%86jar%E5%8C%85%E5%8F%91%E5%B8%83%E5%88%B0%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/" data-id="ckgkbt1mp0022a2wwfa1e83dt" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Freemarker中如何避免xss漏洞" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/" class="article-date">
+  <time datetime="2019-06-20T10:00:00.000Z" itemprop="datePublished">2019-06-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Freemarker/">Freemarker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/">Freemarker中如何避免xss漏洞</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="什么是XSS漏洞"><a href="#什么是XSS漏洞" class="headerlink" title="什么是XSS漏洞"></a>什么是XSS漏洞</h2><p>试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系统来说，用户可以输入的字段太多了，如果能够全部校验，是最好的。如果不能做的话，还可以让前端在做展示的时候进行html转义处理一下，这样原本scirpt标签以及当中的内容就被当做一个字符串展示出来，而不是当做代码执行了。一般现在的reactjs等前端框架已经默认支持防xss了。今天我遇到的问题是，有一部分freemarker写的页面存在XSS的问题。</p>
+<h2 id="FreeMarker中解决XSS"><a href="#FreeMarker中解决XSS" class="headerlink" title="FreeMarker中解决XSS"></a>FreeMarker中解决XSS</h2><p>可以通过对用户输入的字段进行html转义，来有效的避免XSS问题。freemarker模板中的变量通过${value}这样的形式引入，但是挨个修改成<code>$&#123;value?html&#125;</code>的形式未免工作量太大；查阅官方文档，通过escape标签可以对整个模板中$号引入的变量全部进行一次html转义。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign x &#x3D; &quot;&lt;test&gt;&quot;&gt;</span><br><span class="line">&lt;#macro m1&gt;</span><br><span class="line">  m1: $&#123;x&#125;</span><br><span class="line">&lt;&#x2F;#macro&gt;</span><br><span class="line">&lt;#escape x as x?html&gt;</span><br><span class="line">  &lt;#macro m2&gt;m2: $&#123;x&#125;&lt;&#x2F;#macro&gt;</span><br><span class="line">  $&#123;x&#125;</span><br><span class="line">  &lt;@m1&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;#escape&gt;</span><br><span class="line">$&#123;x&#125;</span><br><span class="line">&lt;@m2&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+<p>会输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  &lt;test&gt;</span><br><span class="line">  m1: &lt;test&gt;</span><br><span class="line">&lt;test&gt;</span><br><span class="line">m2: &lt;test&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式完全满足现在的改造需求。在这个项目中，freemarker模板是存储在数据库中，所有用到freemarker渲染的地方均是用的同一个入口；这样工作量就不大了。我们知道，freemarker加载模板是通过TemplateLoader这个接口来实现的；只需要在加载模板的时候在模板的头部加上<code>&lt;#escape x as x?html&gt;</code>在尾部加上<code>&lt;/#escape</code>就可以对模板中所有的变量进行html转义了。通过这种方式数据库中的数据也不用修改，将来生成模板，也不需要考虑做html转义的问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public interface TemplateLoader &#123;</span><br><span class="line">	</span><br><span class="line">    public Object findTemplateSource(String name)</span><br><span class="line">    throws IOException;</span><br><span class="line"></span><br><span class="line">    public long getLastModified(Object templateSource);</span><br><span class="line">  </span><br><span class="line">    public Reader getReader(Object templateSource, String encoding) throws IOException;</span><br><span class="line"> </span><br><span class="line">    public void closeTemplateSource(Object templateSource) throws IOException;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于实现逻辑还是从外部读取字符串加载，所以TemplateLoader接口支持html转义的实现和StringTemplateLoader的逻辑差不多。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line">public class HtmlEscapeTemplateLoader implements TemplateLoader &#123;</span><br><span class="line"></span><br><span class="line">    private static final String HTML_ESCAPE_PREFIX &#x3D; &quot;&lt;#escape x as x?html&gt;&quot;;</span><br><span class="line">    private static final String HTML_ESCAPE_SUFFIX &#x3D; &quot;&lt;&#x2F;#escape&gt;&quot;;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 为了支持并发，这里采用ConcurrentMap</span><br><span class="line">    private final Map&lt;String, StringTemplateSource&gt; templates &#x3D; Maps.newConcurrentMap();</span><br><span class="line"></span><br><span class="line">    public void putTemplate(String name, String templateContent) &#123;</span><br><span class="line">        putTemplate(name, templateContent, System.currentTimeMillis());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void putTemplate(String name, String templateContent, long lastModified) &#123;</span><br><span class="line">        templates.put(name, new HtmlEscapeTemplateLoader.StringTemplateSource(name, templateContent, lastModified));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public boolean removeTemplate(String name) &#123;</span><br><span class="line">        return templates.remove(name) !&#x3D; null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void closeTemplateSource(Object templateSource) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Object findTemplateSource(String name) &#123;</span><br><span class="line">        return templates.get(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public long getLastModified(Object templateSource) &#123;</span><br><span class="line">        return ((HtmlEscapeTemplateLoader.StringTemplateSource) templateSource).lastModified;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Reader getReader(Object templateSource, String encoding) throws IOException &#123;</span><br><span class="line">        Reader reader &#x3D; new StringReader(((StringTemplateSource) templateSource).templateContent);</span><br><span class="line">        String templateText &#x3D; IOUtils.toString(reader);</span><br><span class="line">        return new StringReader(HTML_ESCAPE_PREFIX + templateText + HTML_ESCAPE_SUFFIX);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class StringTemplateSource &#123;</span><br><span class="line">        private final String name;</span><br><span class="line">        private final String templateContent;</span><br><span class="line">        private final long lastModified;</span><br><span class="line"></span><br><span class="line">        StringTemplateSource(String name, String templateContent, long lastModified) &#123;</span><br><span class="line">            if (name &#x3D;&#x3D; null) &#123;</span><br><span class="line">                throw new IllegalArgumentException(&quot;name &#x3D;&#x3D; null&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (templateContent &#x3D;&#x3D; null) &#123;</span><br><span class="line">                throw new IllegalArgumentException(&quot;source &#x3D;&#x3D; null&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (lastModified &lt; -1L) &#123;</span><br><span class="line">                throw new IllegalArgumentException(&quot;lastModified &lt; -1L&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            this.name &#x3D; name;</span><br><span class="line">            this.templateContent &#x3D; templateContent;</span><br><span class="line">            this.lastModified &#x3D; lastModified;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public int hashCode() &#123;</span><br><span class="line">            final int prime &#x3D; 31;</span><br><span class="line">            int result &#x3D; 1;</span><br><span class="line">            result &#x3D; prime * result + ((name &#x3D;&#x3D; null) ? 0 : name.hashCode());</span><br><span class="line">            return result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public boolean equals(Object obj) &#123;</span><br><span class="line">            if (this &#x3D;&#x3D; obj)</span><br><span class="line">                return true;</span><br><span class="line">            if (obj &#x3D;&#x3D; null)</span><br><span class="line">                return false;</span><br><span class="line">            if (getClass() !&#x3D; obj.getClass())</span><br><span class="line">                return false;</span><br><span class="line">            HtmlEscapeTemplateLoader.StringTemplateSource other &#x3D; (HtmlEscapeTemplateLoader.StringTemplateSource) obj;</span><br><span class="line">            if (name &#x3D;&#x3D; null) &#123;</span><br><span class="line">                if (other.name !&#x3D; null)</span><br><span class="line">                    return false;</span><br><span class="line">            &#125; else if (!name.equals(other.name))</span><br><span class="line">                return false;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public String toString() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Show class name and some details that are useful in template-not-found errors.</span><br><span class="line">     *</span><br><span class="line">     * @since 2.3.21</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public String toString() &#123;</span><br><span class="line">        StringBuilder sb &#x3D; new StringBuilder();</span><br><span class="line">        sb.append(getClassNameForToString(this));</span><br><span class="line">        sb.append(&quot;(Map &#123; &quot;);</span><br><span class="line">        int cnt &#x3D; 0;</span><br><span class="line">        for (String name : templates.keySet()) &#123;</span><br><span class="line">            cnt++;</span><br><span class="line">            if (cnt !&#x3D; 1) &#123;</span><br><span class="line">                sb.append(&quot;, &quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (cnt &gt; 10) &#123;</span><br><span class="line">                sb.append(&quot;...&quot;);</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">            sb.append(StringUtil.jQuote(name));</span><br><span class="line">            sb.append(&quot;&#x3D;...&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        if (cnt !&#x3D; 0) &#123;</span><br><span class="line">            sb.append(&#39; &#39;);</span><br><span class="line">        &#125;</span><br><span class="line">        sb.append(&quot;&#125;)&quot;);</span><br><span class="line">        return sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static String getClassNameForToString(TemplateLoader templateLoader) &#123;</span><br><span class="line">        final Class tlClass &#x3D; templateLoader.getClass();</span><br><span class="line">        final Package tlPackage &#x3D; tlClass.getPackage();</span><br><span class="line">        return tlPackage &#x3D;&#x3D; Configuration.class.getPackage() || tlPackage &#x3D;&#x3D; TemplateLoader.class.getPackage()</span><br><span class="line">                ? tlClass.getSimpleName() : tlClass.getName();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此实现了在freemarker中自动进行html转义避免XSS问题的过程。参考网上有些资料可以修改freemarker的源码，对其在进行<code>$</code>号解析的时候，自动加上html转义的逻辑，也是可以的。如果某些特殊情况下，就是需要展示html形式的内容而不需要转义，或者有人错误的将变量进行了一次转义比如写成<code>$&#123;!(value)?html&#125;</code>的形式，会怎样？</p>
+<p>如果就是需要展示html形式的内容而不需要转义，可以用<code>&lt;#noescape&gt;</code>标签将不需要转义的变量包裹起来，这样就算外层有<code>&lt;#escape&gt;</code>也不会进行转义了。如果在外部有<code>&lt;#escape&gt;</code>的情况下，变量自身又做了一次转义，那么该变量会被转义两次。正常字符不会有影响，含有特殊字符的话，可能比较难看了。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shadowsick/article/details/80768868">https://blog.csdn.net/shadowsick/article/details/80768868</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/greki/blog/83246?p=1">https://my.oschina.net/greki/blog/83246?p=1</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/" data-id="ckgkbt1lz0005a2wwfbu23efu" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-VirtualBox虚拟机和宿主机实现网络互通配置" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/" class="article-date">
+  <time datetime="2019-06-19T10:00:00.000Z" itemprop="datePublished">2019-06-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/">VirtualBox虚拟机和宿主机实现网络互通配置</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>由于想要在本地测试一下syslog以及安装jenkins等需求，所以想在本地安装一个虚拟机，并且能够在宿主机上访问，所以想利于virtualbox上安装一个linux来实现，尝试了几次，其实配置挺简单的，这里记录一下。</p>
+</blockquote>
+<h2 id="接入方式对比"><a href="#接入方式对比" class="headerlink" title="接入方式对比"></a>接入方式对比</h2><p>VirtualBox的提供了四种网络接入模式</p>
+<ol>
+<li>NAT 网络地址转换模式(NAT,Network Address Translation) ：<br>宿主机做nat转换，对外外部网络来说，虚拟机是不可见的，因为宿主机代理了虚拟机的所有请求。</li>
+<li>Bridged Adapter 桥接模式 ：<br>对于虚拟机，外部网络可见，虚拟机和宿主机存在于同一个网段。</li>
+<li>Internal 内部网络模式 ：创建一个隔离的虚拟网络，在这个网络中的虚拟机之间可以相互访问，虚拟机不能访问外部网络，外部网络也不能访问内部虚拟机。</li>
+<li>Host-only Adapter 主机模式 ：　也可以通过配置实现，下次有机会再看看。</li>
+</ol>
+<p>各个接入方式对比：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="center">NAT</th>
+<th>Bridged</th>
+<th>Internal</th>
+<th align="right">Host-only</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>虚拟机－&gt;宿主机</td>
+<td align="center">√</td>
+<td>√</td>
+<td>×</td>
+<td align="right">默认不能，需设置</td>
+</tr>
+<tr>
+<td>宿主机－&gt;虚拟机</td>
+<td align="center">×</td>
+<td>√</td>
+<td>×</td>
+<td align="right">默认不能，需设置</td>
+</tr>
+<tr>
+<td>虚拟机－&gt;其他主机</td>
+<td align="center">√</td>
+<td>√</td>
+<td>×</td>
+<td align="right">默认不能，需设置</td>
+</tr>
+<tr>
+<td>其他主机－&gt;宿主机</td>
+<td align="center">×</td>
+<td>√</td>
+<td>×</td>
+<td align="right">默认不能，需设置</td>
+</tr>
+<tr>
+<td>虚拟机之间</td>
+<td align="center">×</td>
+<td>√</td>
+<td>同网络名下可以</td>
+<td align="right">√</td>
+</tr>
+</tbody></table>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>从对比中可以看出桥接方式是最优的方案，但是配置之后，宿主机和虚拟机之间能够互通，但是在虚拟机中不能上外网了，因为配置的宿主机DNS不能解析外部域名，而虚拟机中也无法ping通诸如114.114.114.114的地址。</p>
+<p>如果做NAT的话，虚拟机是可以访问外网的，所以可以给虚拟机设置两个网卡。一个做桥接一个做NAT就达到目的了。</p>
+<p><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/2019/virtualbox-netconfig.png"></p>
+<p>需要注意的是桥接网卡在虚拟机中需要手动配置一个和宿主机同网段的IP，网关和DNS最好和宿主机配置一致。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/chaishen10000/article/details/82984811">https://blog.csdn.net/chaishen10000/article/details/82984811</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/" data-id="ckgkbt1mf0017a2ww6ybihmiz" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Sping%E5%9F%BA%E7%A1%80/">Sping基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring%E5%9F%BA%E7%A1%80/">Spring基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/github%E7%8E%A9%E5%AE%B6%E5%9F%BA%E6%9C%AC%E5%8A%9F/">github玩家基本功</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
