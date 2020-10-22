@@ -1,37 +1,595 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html  lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="heqiao2010">
+  <link rel="icon" href="/img/Kaze.png">
+  <title>GitStats不错</title>
+  
+  
+  <meta property="og:title" content="GitStats不错">
+  
+  
+  <meta property="og:url" content="http://heqiao2010.github.io/2018/02/15/gitstats/index.html">
+  
+  
+  <meta property="og:img" content="/img/Kaze.png">
+  
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2018-02-15">
+  <meta property="og:article:modified_time" content="2020-10-21">
+  <meta property="og:article:author" content="theme-kaze">
+  
+  
+  <meta property="og:article:tag" content="代码统计">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_f7g5jnuftcf.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_f7g5jnuftcf.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.2.0"></head>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
-
-{% block page_class %}page-post-detail{% endblock %}
-
-
-{% block content %}
-
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
-
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    Home
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    Archive
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    Tags
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    Categories
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    About
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    Friends
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav>
+    
+    <div id="local-search" style="display: none;">
+      <input class="navbar-menu-item" id="search-input" placeholder="请输入搜索内容...">
+      <div id="search-content"></div>
+    </div>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      GitStats不错
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2018-02-15T04:00:00.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2018-02-15</span>
+    </time>
+    
+    <span class="dot"></span>
+    
+    <a href="/categories/git/" class="post-meta-link">git</a>
+    
+    
+    
+    <span class="dot"></span>
+    <span>575 words</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/代码统计/" class="post-meta-link">代码统计</a>
+      
     </div>
   </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <blockquote>
+<p>缘起：2017年老板说要搞一个年终总结，写了一个PPT，老板看了，觉得太虚，需要一些数据展示。而基于git原生的一些代码统计显得太单调了，发现网上大神写的gitstats工具不错。</p>
+</blockquote>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ol>
+<li>安装依赖：Git，Python，Gnuplot。</li>
+<li><code>git clone git://github.com/hoxu/gitstats.git</code></li>
+</ol>
+<ul>
+<li>小插曲：<br>在mac上安装Gnuplot的时候报错：<br><code>invalid active developer path (/Library/Developer/CommandLineTools)</code></li>
+<li>解决方法：<br>在终端中执行如下命令：<br><code>xcode-select --install</code><br><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/xcode-selected.png" alt="插件提示" title="xcode-selected" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/xcode-selected.png" class="lozad post-image"><br>系统弹出下载xcode相关插件，大概1分钟安装完毕，然后重试OK。</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>gitstats下载下来之后，解压一共有如下几个文件：<br><br>-rw-r–r–@  1 heqiao  staff   1.0K  1  9  2016 Makefile <br><br>-rw-r–r–@  1 heqiao  staff    73B  1  9  2016 arrow-down.gif<br><br>-rw-r–r–@  1 heqiao  staff    71B  1  9  2016 arrow-none.gif<br><br>-rw-r–r–@  1 heqiao  staff    73B  1  9  2016 arrow-up.gif<br><br>drwxr-xr-x@ 10 heqiao  staff   320B  1  9  2016 doc<br><br>-rwxr-xr-x@  1 heqiao  staff    47K  1  9  2016 gitstats<br><br>-rw-r–r–@  1 heqiao  staff   1.6K  1  9  2016 gitstats.css<br><br>-rw-r–r–@  1 heqiao  staff   9.3K  1  9  2016 sortable.js<br></p>
+<p>其中最重要的就是gitstats，这个文件，实际上是个python脚本，运行：<br><code>./gitstats [git仓库] [统计文件输出文件夹]</code>得到如下输出：<br><br>[0.01650] &gt;&gt; gnuplot –version<br><br>Output path: /Users/heqiao/Downloads/hoxu-gitstats-55c5c28/result<br><br>Git path: solo/<br><br>Collecting data…<br><br>[0.11579] &gt;&gt; git shortlog -s HEAD | wc -l<br><br>[0.00874] &gt;&gt; git show-ref –tags<br><br>[0.00897] &gt;&gt; git log “3580b4353004c88c8b8e6283aea1889be149074a” –pretty=format:”%at %aN” -n 1<br><br>[0.00794] &gt;&gt; git log “0473873adfc4820e1371f112325b8d733aec11f8” –pretty=format:”%at %aN” -n 1<br><br>[0.00774] &gt;&gt; git log “f302f95132b561b2d906b47c64cb5a2c8f6775f9” –pretty=format:”%at %aN” -n 1<br><br>[0.00895] &gt;&gt; git log “d78c8dc9e1e9f8bdfa047f2e4435daaf941c0d5a” –pretty=format:”%at %aN” -n 1<br><br>[0.01002] &gt;&gt; git log “80b05fb7bd09f860a8e79ceee61cf787aa6682ca” –pretty=format:”%at %aN” -n 1<br><br>[0.00767] &gt;&gt; git log “93f81cd81508f2c8a8fb64b6e4286062c023885e” –pretty=format:”%at %aN” -n 1<br><br>[0.00758] &gt;&gt; git log “1326eddf83578d992a4f08e45a5ddf3c9dd82431” –pretty=format:”%at %aN” -n 1<br><br>[0.00756] &gt;&gt; git log “a6356478a743cb681f70649d4791cc9586b5698e” –pretty=format:”%at %aN” -n 1<br><br>[0.00843] &gt;&gt; git log “d7a38706a7489edf997c9142ab2bf2e62ebc7ca8” –pretty=format:”%at %aN” -n 1<br><br>[0.00825] &gt;&gt; git log “c457ef0f91a880da238873790505e522d802484c” –pretty=format:”%at %aN” -n 1<br><br>[0.01002] &gt;&gt; git log “d8608b5ce71aaa44a3afd8d34d730dadc7dd63ce” –pretty=format:”%at %aN” -n 1<br><br>[0.00878] &gt;&gt; git log “869a4500faaffe27d3b075d293d7246ef4f98740” –pretty=format:”%at %aN” -n 1<br><br>…<br></p>
+<p>生成的统计文件后，用浏览器打开目录中的index.html即可。SOLO项目的代码统计：<br><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/solo-statistic.png" alt="统计文件" title="solo-statistic" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/gitstats/solo-statistic.png" class="lozad post-image"></p>
+<p>此外，为了让一些前端同学（不熟悉python和linux环境）也能用这个工具，自己写了一个能够用web访问的小工具：</p>
+<p>见：<a target="_blank" rel="noopener" href="https://github.com/heqiao2010/webGitstats">https://github.com/heqiao2010/webGitstats</a></p>
 
-{% endblock %}
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://heqiao2010.github.io/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://heqiao2010.github.io/2018/02/15/gitstats/">http://heqiao2010.github.io/2018/02/15/gitstats/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2018/05/06/newstart/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">Prev</div>
+        
+        <div class="nav-title">一个全新的开始 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+</div>
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>TOC</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/Kaze.png" class="author-img">
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+<p class="author-name">theme-kaze</p>
+<p class="author-description">designed by theme-kaze</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>31</span>
+    <span>Posts</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>14</span>
+    <span>Categories</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>14</span>
+    <span>Tags</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>TOC</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>Categories</div>
+  <div class="categories-list">
+    
+      <a href="/categories/服务端">
+        <div class="categories-list-item">
+          服务端
+          <span class="categories-list-item-badge">8</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Spring">
+        <div class="categories-list-item">
+          Spring
+          <span class="categories-list-item-badge">5</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Freemarker">
+        <div class="categories-list-item">
+          Freemarker
+          <span class="categories-list-item-badge">2</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Java并发基础">
+        <div class="categories-list-item">
+          Java并发基础
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Arthas">
+        <div class="categories-list-item">
+          Arthas
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Swagger">
+        <div class="categories-list-item">
+          Swagger
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/syslog">
+        <div class="categories-list-item">
+          syslog
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/虚拟机">
+        <div class="categories-list-item">
+          虚拟机
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/git">
+        <div class="categories-list-item">
+          git
+          <span class="categories-list-item-badge">3</span>
+        </div>
+      </a>
+    
+      <a href="/categories/杂七杂八">
+        <div class="categories-list-item">
+          杂七杂八
+          <span class="categories-list-item-badge">2</span>
+        </div>
+      </a>
+    
+      <a href="/categories/面试">
+        <div class="categories-list-item">
+          面试
+          <span class="categories-list-item-badge">3</span>
+        </div>
+      </a>
+    
+      <a href="/categories/nginx">
+        <div class="categories-list-item">
+          nginx
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/logrotate">
+        <div class="categories-list-item">
+          logrotate
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Mysql">
+        <div class="categories-list-item">
+          Mysql
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>hot tags</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Java" title="Java"><div class="tags-list-item">Java</div></a>
+    
+    <a href="\tags\服务端" title="服务端"><div class="tags-list-item">服务端</div></a>
+    
+    <a href="\tags\面试题" title="面试题"><div class="tags-list-item">面试题</div></a>
+    
+    <a href="\tags\Spring" title="Spring"><div class="tags-list-item">Spring</div></a>
+    
+    <a href="\tags\Freemarker" title="Freemarker"><div class="tags-list-item">Freemarker</div></a>
+    
+    <a href="\tags\MySql" title="MySql"><div class="tags-list-item">MySql</div></a>
+    
+    <a href="\tags\Maven" title="Maven"><div class="tags-list-item">Maven</div></a>
+    
+    <a href="\tags\杂谈" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="\tags\git" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="\tags\代码统计" title="代码统计"><div class="tags-list-item">代码统计</div></a>
+    
+    <a href="\tags\VirtualBox" title="VirtualBox"><div class="tags-list-item">VirtualBox</div></a>
+    
+    <a href="\tags\linux" title="linux"><div class="tags-list-item">linux</div></a>
+    
+    <a href="\tags\Api管理" title="Api管理"><div class="tags-list-item">Api管理</div></a>
+    
+    <a href="\tags\Arthas" title="Arthas"><div class="tags-list-item">Arthas</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>TOC</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>Recent Posts</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-06-30</div>
+        <a href="/2020/06/30/Spring_Security如何优雅的过滤掉静态页面请求/"><div class="recent-posts-item-content">Spring Security 如何优雅的过滤掉静态页面请求</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-06-17</div>
+        <a href="/2020/06/17/志归档工具logrotate介绍/"><div class="recent-posts-item-content">日志归档工具logrotate介绍</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-07-26</div>
+        <a href="/2019/07/26/Freemarker中如何进行Json转化/"><div class="recent-posts-item-content">Freemarker中如何进行Json转化</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-07-08</div>
+        <a href="/2019/07/08/ControllerAdvice注解/"><div class="recent-posts-item-content">ControllerAdvice注解</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2020
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('aria-label', 'illustration');
+      wrapper.style.cssText = 'width: 100%; display: flex; justify-content: center;';
+      img[i].before(wrapper);
+      wrapper.append(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

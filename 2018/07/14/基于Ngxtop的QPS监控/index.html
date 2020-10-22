@@ -1,37 +1,614 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html  lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="heqiao2010">
+  <link rel="icon" href="/img/Kaze.png">
+  <title>基于Ngxtop的QPS监控</title>
+  
+  
+  <meta property="og:title" content="基于Ngxtop的QPS监控">
+  
+  
+  <meta property="og:url" content="http://heqiao2010.github.io/2018/07/14/%E5%9F%BA%E4%BA%8ENgxtop%E7%9A%84QPS%E7%9B%91%E6%8E%A7/index.html">
+  
+  
+  <meta property="og:img" content="/img/Kaze.png">
+  
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2018-07-14">
+  <meta property="og:article:modified_time" content="2020-10-22">
+  <meta property="og:article:author" content="theme-kaze">
+  
+  
+  <meta property="og:article:tag" content="服务端">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_f7g5jnuftcf.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_f7g5jnuftcf.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.2.0"></head>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
-
-{% block page_class %}page-post-detail{% endblock %}
-
-
-{% block content %}
-
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
-
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">theme-kaze demo</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    Home
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    Archive
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    Tags
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    Categories
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    About
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    Friends
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav>
+    
+    <div id="local-search" style="display: none;">
+      <input class="navbar-menu-item" id="search-input" placeholder="请输入搜索内容...">
+      <div id="search-content"></div>
+    </div>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      基于Ngxtop的QPS监控
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2018-07-14T10:00:00.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2018-07-14</span>
+    </time>
+    
+    <span class="dot"></span>
+    
+    <a href="/categories/nginx/" class="post-meta-link">nginx</a>
+    
+    
+    
+    <span class="dot"></span>
+    <span>1.2k words</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/服务端/" class="post-meta-link">服务端</a>
+      
     </div>
   </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://img.hacpai.com/bing/20180309.jpg?imageView2/1/w/960/h/520/interlace/1/q/100" class="lozad post-image"src="https://img.hacpai.com/bing/20180309.jpg?imageView2/1/w/960/h/520/interlace/1/q/100"></p>
+<blockquote>
+<p>之前参与一个公有云项目的开发，系统入口是公有云平台提供的LB。云平台的LB再将请求转发到后方的多台Nginx，Nginx上再做反向代理到后方的服务器。为了获取系统的QPS，我们在Nginx服务器上写了个定时任务脚本，定期采集并发量，然后汇总。</p>
+</blockquote>
+<h3 id="并发量采集脚本"><a href="#并发量采集脚本" class="headerlink" title="并发量采集脚本"></a>并发量采集脚本</h3><ol>
+<li>先安装ngxtop<br>依次运行：<pre class="highlight"><span class="line">sudo yum -y install epel-release</span><br><span class="line">sudo yum -y install python-pip #安装python-pip</span><br><span class="line">sudo yum clean all #清除缓存</span><br><span class="line">sudo pip install ngxtop #安装Ngxtop</span><br></pre></li>
+</ol>
+<p><strong>注意：由于ngxtop是通过监控access.log文件来获取并发量的，因此nginx.conf中的access log一定要打开。</strong></p>
+<p>安装好了之后就能得到当前这台nginx服务器上此时的并发量了。当然也可以通过一些参数对请求做一些过滤比如<code>ngxtop -i &#39;status &gt;= 400&#39; print request status http_referer</code>;我们获取的并发数是整个系统的，可以不过滤。</p>
+<pre class="highlight"><span class="line">running for 10 seconds, 1035 records processed: 102.47 req&#x2F;sec</span><br><span class="line"></span><br><span class="line">Summary:</span><br><span class="line">|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |</span><br><span class="line">|---------+------------------+-------+-------+-------+-------|</span><br><span class="line">|    1035 |         4793.348 |   611 |   414 |    10 |     0 |</span><br><span class="line"></span><br><span class="line">Detailed:</span><br><span class="line">| request_path                                            |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |</span><br><span class="line">|---------------------------------------------------------+---------+------------------+-------+-------+-------+-------|</span><br><span class="line">| &#x2F;portal&#x2F;protocol                                        |     351 |            4.427 |    14 |   337 |     0 |     0 |</span><br><span class="line">| &#x2F;portal&#x2F;protocol&#x2F;onlines                                |	142 |           29.585 |   142 |     0 |     0 |     0 |</span><br><span class="line">| &#x2F;fs&#x2F;group1&#x2F;M00&#x2F;38&#x2F;1A&#x2F;wKgBjVr-enmAUwbrAAA4icErDmQ64.html |      93 |         7019.968 |    93 |     0 |     0 |     0 |</span><br><span class="line">| &#x2F;fs&#x2F;group1&#x2F;M00&#x2F;20&#x2F;55&#x2F;wKgBK1rX-yGAGUzxAAA2uqGptGw07.html |	 54 |         4009.000 |    54 |     0 |     0 |     0 |</span><br><span class="line">| &#x2F;portal&#x2F;getBindStatus                                   |	 48 |           92.000 |    48 |     0 |     0 |     0 |</span><br><span class="line">| &#x2F;portal&#x2F;portalError.jsp                                 |	 44 |         6481.818 |    44 |     0 |     0 |     0 |</span><br><span class="line">| &#x2F;fs&#x2F;group1&#x2F;M00&#x2F;3A&#x2F;C2&#x2F;wKgBjVsHZ2yADQyKAAA2BaQs3gQ79.html |	 42 |        12323.667 |    41 |     1 |     0 |     0 |</span><br><span class="line">| &#x2F;fs&#x2F;group1&#x2F;M00&#x2F;39&#x2F;D5&#x2F;wKgBjVsDzz-AEZ_BAAA3KhsbE4Q76.html |	 24 |         8877.833 |    23 |     1 |     0 |     0 |</span><br><span class="line">| &#x2F;fs&#x2F;group1&#x2F;M00&#x2F;3A&#x2F;C2&#x2F;wKgBjVsHZpKAcXlwAAA3pIzc9NQ54.html |	 14 |         4051.000 |    14 |     0 |     0 |     0 |</span><br><span class="line">| &#x2F;fs&#x2F;group1&#x2F;M00&#x2F;3A&#x2F;C2&#x2F;wKgBjVsHZ4mAemZDAAA2Ifroljg77.html |	 12 |         9739.083 |    12 |     0 |     0 |     0 |</span><br></pre>
 
-{% endblock %}
+<p>由于ngxtop命令，需要运行一段时间，才能计算出QPS值，因此我们不能获取这个命令的实时输出，而是需要延时后，取结果。通过如下的shell函数可以做到，延时输出。</p>
+<pre class="highlight"><span class="line">timeout() &#123;</span><br><span class="line"></span><br><span class="line">time&#x3D;$1</span><br><span class="line"></span><br><span class="line"># start the command in a subshell to avoid problem with pipes</span><br><span class="line"># (spawn accepts one command)</span><br><span class="line"></span><br><span class="line">command&#x3D;&quot;&#x2F;bin&#x2F;sh -c \&quot;$2\&quot;&quot;</span><br><span class="line"></span><br><span class="line">expect -c &quot;set echo \&quot;-noecho\&quot;; set timeout $time; spawn -noecho $command; expect timeout &#123; exit 1 &#125; eof &#123; exit 0 &#125;&quot;</span><br><span class="line"></span><br><span class="line">if [ $?  &#x3D; 1 ] ;  then</span><br><span class="line"></span><br><span class="line">echo  &quot;Timeout after $&#123;time&#125; seconds&quot;</span><br><span class="line"></span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">timeout 5s &#x2F;usr&#x2F;bin&#x2F;ngxtop &gt;  $work_dir&#x2F;out.txt   #运行ngxtop命令5s，然后将输出重定向到text文件中。</span><br></pre>
+<p>剩下的工作就是将qps值从命令中截取出来即可：</p>
+<pre class="highlight"><span class="line">req_per_sec&#x3D;&#96;&#x2F;usr&#x2F;bin&#x2F;cat $work_dir&#x2F;out.txt|grep records |&#x2F;usr&#x2F;bin&#x2F;awk -F &#39;sec&#39; &#39;&#123;print $1&#125;&#39;|grep -oP -m 1 &quot;record.+&quot;|&#x2F;usr&#x2F;bin&#x2F;awk -F &#39;req&#39; &#39;&#123;print $1&#125;&#39;|&#x2F;usr&#x2F;bin&#x2F;awk -F&#39;:&#39; &#39;&#123;print $2&#125;&#39;&#96;</span><br></pre>
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+<h3 id="保证采集脚本在数台nginx服务器上并发执行"><a href="#保证采集脚本在数台nginx服务器上并发执行" class="headerlink" title="保证采集脚本在数台nginx服务器上并发执行"></a>保证采集脚本在数台nginx服务器上并发执行</h3><p>如何保证采集脚本在多台nginx上几乎同时执行呢——用<code>python-fab</code>实现。</p>
+<pre class="highlight"><span class="line"># -*- coding: utf-8 -*-</span><br><span class="line"># !&#x2F;usr&#x2F;bin&#x2F;python</span><br><span class="line"></span><br><span class="line">import os</span><br><span class="line">import paramiko</span><br><span class="line">import root_path</span><br><span class="line"></span><br><span class="line">from fabric.api import *</span><br><span class="line">from fabric.context_managers import settings</span><br><span class="line">from fabric.contrib.files import exists</span><br><span class="line">from fabric.decorators import hosts</span><br><span class="line"></span><br><span class="line">from utillib import CommonUtil</span><br><span class="line">from utillib import MySqlUtil</span><br><span class="line">from ngxtop import NgxtopDao</span><br><span class="line"></span><br><span class="line">paramiko.util.log_to_file(&quot;filename.log&quot;)</span><br><span class="line"></span><br><span class="line">logger &#x3D; CommonUtil.getLogger(__name__)</span><br><span class="line">env.user &#x3D; &#39;root&#39;</span><br><span class="line">env.key_filename &#x3D; &#39;&#x2F;root&#x2F;.ssh&#x2F;id_rsa.pub&#39;</span><br><span class="line">env.hosts&#x3D;CommonUtil.get_value_list(&#39;ngxtop&#39;) # 取nginx机器列表</span><br><span class="line"></span><br><span class="line">@task</span><br><span class="line">@parallel # 保证并发执行</span><br><span class="line">def collect_result():</span><br><span class="line">    if not exists(&#39;&#x2F;home&#x2F;azureuser&#x2F;auth-webserver&#x2F;ngxtop_statistics&#x2F;concurrent_statistics.sh&#39;):</span><br><span class="line">        run(&#39;mkdir -p &#x2F;home&#x2F;azureuser&#x2F;auth-webserver&#x2F;ngxtop_statistics&#39;)</span><br><span class="line">        put(&#39;&#x2F;home&#x2F;azureuser&#x2F;auth-webserver&#x2F;ngxtop&#x2F;concurrent_statistics.sh&#39;,&#39;&#x2F;home&#x2F;azureuser&#x2F;auth-webserver&#x2F;ngxtop_statistics&#39;) # 拷贝脚本</span><br><span class="line"></span><br><span class="line">    result&#x3D;run(&#39;sh &#x2F;home&#x2F;azureuser&#x2F;auth-webserver&#x2F;ngxtop_statistics&#x2F;concurrent_statistics.sh&#39;) # 执行脚本</span><br><span class="line">    #logger.info(result)</span><br><span class="line">    return result</span><br><span class="line"></span><br><span class="line">@task</span><br><span class="line">@hosts(CommonUtil.get_value_list(&#39;ngxtop&#39;))</span><br><span class="line">def delete_script():</span><br><span class="line">    run(&#39;rm -rf &#x2F;home&#x2F;azureuser&#x2F;auth-webserver&#x2F;ngxtop_statistics&#x2F;concurrent_statistics.sh&#39;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@task</span><br><span class="line">@runs_once # 入库保证只执行一次</span><br><span class="line">def save_to_database():</span><br><span class="line">    collected_output &#x3D; execute(collect_result)</span><br><span class="line">    create_time&#x3D;None</span><br><span class="line">    wrong_data_type&#x3D;False</span><br><span class="line">    create_time&#x3D;CommonUtil.get_local_time()</span><br><span class="line">    insert_table_name &#x3D; &#39;tbl_uam_ngxtop&#39;</span><br><span class="line">    for host, info in collected_output.iteritems():</span><br><span class="line">        logger.info(&quot;On host &#123;0&#125; last user was &#123;1&#125;&quot;.format(host, info))</span><br><span class="line">        data&#x3D;info.split(&#39; &#39;)</span><br><span class="line">        ngx_data&#x3D;&#123;&#125;</span><br><span class="line">        ngx_data[&#39;create_time&#39;] &#x3D; create_time</span><br><span class="line">        if(len(data) &#x3D;&#x3D; 2 ):</span><br><span class="line">            # 有些时候，取出的qps值中间可能会缺失一位，这里补5.</span><br><span class="line">            ngx_data[&#39;request_per_second&#39;] &#x3D; str(data[0]) + &#39;5&#39; + str(data[1])</span><br><span class="line">        else:</span><br><span class="line">            ngx_data[&#39;request_per_second&#39;] &#x3D; str(info)</span><br><span class="line">        ngx_data[&#39;ip&#39;] &#x3D; str(host)</span><br><span class="line">        NgxtopDao.save(insert_table_name,ngx_data)</span><br><span class="line">    logger.info(ngx_data)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &#39;__main__&#39;:</span><br><span class="line">    os.system(&#39;fab -f NgxtopCollector.py save_to_database&#39;)</span><br></pre>
+<p>那么这个python脚本，通过crontab每5min触发一次，就能得到相应的qps数据了。</p>
+<h3 id="数据展示"><a href="#数据展示" class="headerlink" title="数据展示"></a>数据展示</h3><p>用E-charts做了个表格，这样几个系统的qps值就可以采集到了。其实通过这个可以做一个简单的告警，比如当qps值到达4000时，发送一个告警邮件，或者告警微信消息。<br><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/qps.png" alt="qps" title="qps" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/qps.png" class="lozad post-image"></p>
+<p><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/qps2.png" alt="qps" title="qps" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/qps2.png" class="lozad post-image"></p>
+<p>感谢<a target="_blank" rel="noopener" href="http://yxs1112003.github.io/">YXS</a>编码实现。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://heqiao2010.github.io/about">theme-kaze</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://heqiao2010.github.io/2018/07/14/%E5%9F%BA%E4%BA%8ENgxtop%E7%9A%84QPS%E7%9B%91%E6%8E%A7/">http://heqiao2010.github.io/2018/07/14/%E5%9F%BA%E4%BA%8ENgxtop%E7%9A%84QPS%E7%9B%91%E6%8E%A7/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2018/08/02/如何从jar包中读取配置文件/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">Prev</div>
+        
+        <div class="nav-title">如何在jar包中读取配置文件  </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2018/06/22/步线程池优化/" class="nav-link">
+      <div>
+        <div class="nav-label">Next</div>
+        
+        <div class="nav-title">异步线程池优化 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>TOC</div>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E9%87%8F%E9%87%87%E9%9B%86%E8%84%9A%E6%9C%AC"><span class="toc-text">并发量采集脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E8%AF%81%E9%87%87%E9%9B%86%E8%84%9A%E6%9C%AC%E5%9C%A8%E6%95%B0%E5%8F%B0nginx%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%B9%B6%E5%8F%91%E6%89%A7%E8%A1%8C"><span class="toc-text">保证采集脚本在数台nginx服务器上并发执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%B1%95%E7%A4%BA"><span class="toc-text">数据展示</span></a></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/img/Kaze.png" class="author-img">
+
+<p class="author-name">theme-kaze</p>
+<p class="author-description">designed by theme-kaze</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>31</span>
+    <span>Posts</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>14</span>
+    <span>Categories</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>14</span>
+    <span>Tags</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>TOC</div>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E9%87%8F%E9%87%87%E9%9B%86%E8%84%9A%E6%9C%AC"><span class="toc-text">并发量采集脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E8%AF%81%E9%87%87%E9%9B%86%E8%84%9A%E6%9C%AC%E5%9C%A8%E6%95%B0%E5%8F%B0nginx%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%B9%B6%E5%8F%91%E6%89%A7%E8%A1%8C"><span class="toc-text">保证采集脚本在数台nginx服务器上并发执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%B1%95%E7%A4%BA"><span class="toc-text">数据展示</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>Categories</div>
+  <div class="categories-list">
+    
+      <a href="/categories/服务端">
+        <div class="categories-list-item">
+          服务端
+          <span class="categories-list-item-badge">8</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Spring">
+        <div class="categories-list-item">
+          Spring
+          <span class="categories-list-item-badge">5</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Freemarker">
+        <div class="categories-list-item">
+          Freemarker
+          <span class="categories-list-item-badge">2</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Java并发基础">
+        <div class="categories-list-item">
+          Java并发基础
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Arthas">
+        <div class="categories-list-item">
+          Arthas
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Swagger">
+        <div class="categories-list-item">
+          Swagger
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/syslog">
+        <div class="categories-list-item">
+          syslog
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/虚拟机">
+        <div class="categories-list-item">
+          虚拟机
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/git">
+        <div class="categories-list-item">
+          git
+          <span class="categories-list-item-badge">3</span>
+        </div>
+      </a>
+    
+      <a href="/categories/杂七杂八">
+        <div class="categories-list-item">
+          杂七杂八
+          <span class="categories-list-item-badge">2</span>
+        </div>
+      </a>
+    
+      <a href="/categories/面试">
+        <div class="categories-list-item">
+          面试
+          <span class="categories-list-item-badge">3</span>
+        </div>
+      </a>
+    
+      <a href="/categories/nginx">
+        <div class="categories-list-item">
+          nginx
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/logrotate">
+        <div class="categories-list-item">
+          logrotate
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/Mysql">
+        <div class="categories-list-item">
+          Mysql
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>hot tags</div>
+  <div class="tags-list">
+    
+    <a href="\tags\Java" title="Java"><div class="tags-list-item">Java</div></a>
+    
+    <a href="\tags\服务端" title="服务端"><div class="tags-list-item">服务端</div></a>
+    
+    <a href="\tags\面试题" title="面试题"><div class="tags-list-item">面试题</div></a>
+    
+    <a href="\tags\Spring" title="Spring"><div class="tags-list-item">Spring</div></a>
+    
+    <a href="\tags\Freemarker" title="Freemarker"><div class="tags-list-item">Freemarker</div></a>
+    
+    <a href="\tags\MySql" title="MySql"><div class="tags-list-item">MySql</div></a>
+    
+    <a href="\tags\Maven" title="Maven"><div class="tags-list-item">Maven</div></a>
+    
+    <a href="\tags\杂谈" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="\tags\git" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="\tags\代码统计" title="代码统计"><div class="tags-list-item">代码统计</div></a>
+    
+    <a href="\tags\VirtualBox" title="VirtualBox"><div class="tags-list-item">VirtualBox</div></a>
+    
+    <a href="\tags\linux" title="linux"><div class="tags-list-item">linux</div></a>
+    
+    <a href="\tags\Api管理" title="Api管理"><div class="tags-list-item">Api管理</div></a>
+    
+    <a href="\tags\Arthas" title="Arthas"><div class="tags-list-item">Arthas</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>TOC</div>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E9%87%8F%E9%87%87%E9%9B%86%E8%84%9A%E6%9C%AC"><span class="toc-text">并发量采集脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E8%AF%81%E9%87%87%E9%9B%86%E8%84%9A%E6%9C%AC%E5%9C%A8%E6%95%B0%E5%8F%B0nginx%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%B9%B6%E5%8F%91%E6%89%A7%E8%A1%8C"><span class="toc-text">保证采集脚本在数台nginx服务器上并发执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%B1%95%E7%A4%BA"><span class="toc-text">数据展示</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>Recent Posts</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-06-30</div>
+        <a href="/2020/06/30/Spring_Security如何优雅的过滤掉静态页面请求/"><div class="recent-posts-item-content">Spring Security 如何优雅的过滤掉静态页面请求</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-06-17</div>
+        <a href="/2020/06/17/志归档工具logrotate介绍/"><div class="recent-posts-item-content">日志归档工具logrotate介绍</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-07-26</div>
+        <a href="/2019/07/26/Freemarker中如何进行Json转化/"><div class="recent-posts-item-content">Freemarker中如何进行Json转化</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2019-07-08</div>
+        <a href="/2019/07/08/ControllerAdvice注解/"><div class="recent-posts-item-content">ControllerAdvice注解</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2020
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">theme-kaze demo </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>
+
+  
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('aria-label', 'illustration');
+      wrapper.style.cssText = 'width: 100%; display: flex; justify-content: center;';
+      img[i].before(wrapper);
+      wrapper.append(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>
