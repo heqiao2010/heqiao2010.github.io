@@ -1,259 +1,687 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="blog of heqiao2010">
+  <meta name="author" content="HQ">
+  <meta name="keywords" content="java,go">
+  <title>Freemarker中如何避免xss漏洞 - heqiao2010</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+    
   
 
   
-  <title>Freemarker中如何避免xss漏洞 | heqiao2010</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="什么是XSS漏洞试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Freemarker中如何避免xss漏洞">
-<meta property="og:url" content="http://heqiao2010.github.io/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/index.html">
-<meta property="og:site_name" content="heqiao2010">
-<meta property="og:description" content="什么是XSS漏洞试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2019-06-20T10:00:00.000Z">
-<meta property="article:modified_time" content="2020-10-22T03:32:28.827Z">
-<meta property="article:author" content="heqiao2010">
-<meta property="article:tag" content="Freemarker">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
+</head>
+
 
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">heqiao2010</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>heqiao2010</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
-          <a class="main-nav-link" href="/">Home</a>
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://heqiao2010.github.io"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-Freemarker中如何避免xss漏洞" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/" class="article-date">
-  <time datetime="2019-06-20T10:00:00.000Z" itemprop="datePublished">2019-06-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Freemarker/">Freemarker</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
         
-  
-    <h1 class="article-title" itemprop="name">
-      Freemarker中如何避免xss漏洞
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="什么是XSS漏洞"><a href="#什么是XSS漏洞" class="headerlink" title="什么是XSS漏洞"></a>什么是XSS漏洞</h2><p>试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系统来说，用户可以输入的字段太多了，如果能够全部校验，是最好的。如果不能做的话，还可以让前端在做展示的时候进行html转义处理一下，这样原本scirpt标签以及当中的内容就被当做一个字符串展示出来，而不是当做代码执行了。一般现在的reactjs等前端框架已经默认支持防xss了。今天我遇到的问题是，有一部分freemarker写的页面存在XSS的问题。</p>
-<h2 id="FreeMarker中解决XSS"><a href="#FreeMarker中解决XSS" class="headerlink" title="FreeMarker中解决XSS"></a>FreeMarker中解决XSS</h2><p>可以通过对用户输入的字段进行html转义，来有效的避免XSS问题。freemarker模板中的变量通过${value}这样的形式引入，但是挨个修改成<code>$&#123;value?html&#125;</code>的形式未免工作量太大；查阅官方文档，通过escape标签可以对整个模板中$号引入的变量全部进行一次html转义。比如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign x &#x3D; &quot;&lt;test&gt;&quot;&gt;</span><br><span class="line">&lt;#macro m1&gt;</span><br><span class="line">  m1: $&#123;x&#125;</span><br><span class="line">&lt;&#x2F;#macro&gt;</span><br><span class="line">&lt;#escape x as x?html&gt;</span><br><span class="line">  &lt;#macro m2&gt;m2: $&#123;x&#125;&lt;&#x2F;#macro&gt;</span><br><span class="line">  $&#123;x&#125;</span><br><span class="line">  &lt;@m1&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;#escape&gt;</span><br><span class="line">$&#123;x&#125;</span><br><span class="line">&lt;@m2&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-<p>会输出：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  &lt;test&gt;</span><br><span class="line">  m1: &lt;test&gt;</span><br><span class="line">&lt;test&gt;</span><br><span class="line">m2: &lt;test&gt;</span><br></pre></td></tr></table></figure>
-
-<p>这种方式完全满足现在的改造需求。在这个项目中，freemarker模板是存储在数据库中，所有用到freemarker渲染的地方均是用的同一个入口；这样工作量就不大了。我们知道，freemarker加载模板是通过TemplateLoader这个接口来实现的；只需要在加载模板的时候在模板的头部加上<code>&lt;#escape x as x?html&gt;</code>在尾部加上<code>&lt;/#escape</code>就可以对模板中所有的变量进行html转义了。通过这种方式数据库中的数据也不用修改，将来生成模板，也不需要考虑做html转义的问题。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public interface TemplateLoader &#123;</span><br><span class="line">	</span><br><span class="line">    public Object findTemplateSource(String name)</span><br><span class="line">    throws IOException;</span><br><span class="line"></span><br><span class="line">    public long getLastModified(Object templateSource);</span><br><span class="line">  </span><br><span class="line">    public Reader getReader(Object templateSource, String encoding) throws IOException;</span><br><span class="line"> </span><br><span class="line">    public void closeTemplateSource(Object templateSource) throws IOException;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>由于实现逻辑还是从外部读取字符串加载，所以TemplateLoader接口支持html转义的实现和StringTemplateLoader的逻辑差不多。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line">public class HtmlEscapeTemplateLoader implements TemplateLoader &#123;</span><br><span class="line"></span><br><span class="line">    private static final String HTML_ESCAPE_PREFIX &#x3D; &quot;&lt;#escape x as x?html&gt;&quot;;</span><br><span class="line">    private static final String HTML_ESCAPE_SUFFIX &#x3D; &quot;&lt;&#x2F;#escape&gt;&quot;;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 为了支持并发，这里采用ConcurrentMap</span><br><span class="line">    private final Map&lt;String, StringTemplateSource&gt; templates &#x3D; Maps.newConcurrentMap();</span><br><span class="line"></span><br><span class="line">    public void putTemplate(String name, String templateContent) &#123;</span><br><span class="line">        putTemplate(name, templateContent, System.currentTimeMillis());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void putTemplate(String name, String templateContent, long lastModified) &#123;</span><br><span class="line">        templates.put(name, new HtmlEscapeTemplateLoader.StringTemplateSource(name, templateContent, lastModified));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public boolean removeTemplate(String name) &#123;</span><br><span class="line">        return templates.remove(name) !&#x3D; null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void closeTemplateSource(Object templateSource) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Object findTemplateSource(String name) &#123;</span><br><span class="line">        return templates.get(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public long getLastModified(Object templateSource) &#123;</span><br><span class="line">        return ((HtmlEscapeTemplateLoader.StringTemplateSource) templateSource).lastModified;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Reader getReader(Object templateSource, String encoding) throws IOException &#123;</span><br><span class="line">        Reader reader &#x3D; new StringReader(((StringTemplateSource) templateSource).templateContent);</span><br><span class="line">        String templateText &#x3D; IOUtils.toString(reader);</span><br><span class="line">        return new StringReader(HTML_ESCAPE_PREFIX + templateText + HTML_ESCAPE_SUFFIX);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class StringTemplateSource &#123;</span><br><span class="line">        private final String name;</span><br><span class="line">        private final String templateContent;</span><br><span class="line">        private final long lastModified;</span><br><span class="line"></span><br><span class="line">        StringTemplateSource(String name, String templateContent, long lastModified) &#123;</span><br><span class="line">            if (name &#x3D;&#x3D; null) &#123;</span><br><span class="line">                throw new IllegalArgumentException(&quot;name &#x3D;&#x3D; null&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (templateContent &#x3D;&#x3D; null) &#123;</span><br><span class="line">                throw new IllegalArgumentException(&quot;source &#x3D;&#x3D; null&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (lastModified &lt; -1L) &#123;</span><br><span class="line">                throw new IllegalArgumentException(&quot;lastModified &lt; -1L&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            this.name &#x3D; name;</span><br><span class="line">            this.templateContent &#x3D; templateContent;</span><br><span class="line">            this.lastModified &#x3D; lastModified;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public int hashCode() &#123;</span><br><span class="line">            final int prime &#x3D; 31;</span><br><span class="line">            int result &#x3D; 1;</span><br><span class="line">            result &#x3D; prime * result + ((name &#x3D;&#x3D; null) ? 0 : name.hashCode());</span><br><span class="line">            return result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public boolean equals(Object obj) &#123;</span><br><span class="line">            if (this &#x3D;&#x3D; obj)</span><br><span class="line">                return true;</span><br><span class="line">            if (obj &#x3D;&#x3D; null)</span><br><span class="line">                return false;</span><br><span class="line">            if (getClass() !&#x3D; obj.getClass())</span><br><span class="line">                return false;</span><br><span class="line">            HtmlEscapeTemplateLoader.StringTemplateSource other &#x3D; (HtmlEscapeTemplateLoader.StringTemplateSource) obj;</span><br><span class="line">            if (name &#x3D;&#x3D; null) &#123;</span><br><span class="line">                if (other.name !&#x3D; null)</span><br><span class="line">                    return false;</span><br><span class="line">            &#125; else if (!name.equals(other.name))</span><br><span class="line">                return false;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public String toString() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Show class name and some details that are useful in template-not-found errors.</span><br><span class="line">     *</span><br><span class="line">     * @since 2.3.21</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public String toString() &#123;</span><br><span class="line">        StringBuilder sb &#x3D; new StringBuilder();</span><br><span class="line">        sb.append(getClassNameForToString(this));</span><br><span class="line">        sb.append(&quot;(Map &#123; &quot;);</span><br><span class="line">        int cnt &#x3D; 0;</span><br><span class="line">        for (String name : templates.keySet()) &#123;</span><br><span class="line">            cnt++;</span><br><span class="line">            if (cnt !&#x3D; 1) &#123;</span><br><span class="line">                sb.append(&quot;, &quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (cnt &gt; 10) &#123;</span><br><span class="line">                sb.append(&quot;...&quot;);</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">            sb.append(StringUtil.jQuote(name));</span><br><span class="line">            sb.append(&quot;&#x3D;...&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        if (cnt !&#x3D; 0) &#123;</span><br><span class="line">            sb.append(&#39; &#39;);</span><br><span class="line">        &#125;</span><br><span class="line">        sb.append(&quot;&#125;)&quot;);</span><br><span class="line">        return sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static String getClassNameForToString(TemplateLoader templateLoader) &#123;</span><br><span class="line">        final Class tlClass &#x3D; templateLoader.getClass();</span><br><span class="line">        final Package tlPackage &#x3D; tlClass.getPackage();</span><br><span class="line">        return tlPackage &#x3D;&#x3D; Configuration.class.getPackage() || tlPackage &#x3D;&#x3D; TemplateLoader.class.getPackage()</span><br><span class="line">                ? tlClass.getSimpleName() : tlClass.getName();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>至此实现了在freemarker中自动进行html转义避免XSS问题的过程。参考网上有些资料可以修改freemarker的源码，对其在进行<code>$</code>号解析的时候，自动加上html转义的逻辑，也是可以的。如果某些特殊情况下，就是需要展示html形式的内容而不需要转义，或者有人错误的将变量进行了一次转义比如写成<code>$&#123;!(value)?html&#125;</code>的形式，会怎样？</p>
-<p>如果就是需要展示html形式的内容而不需要转义，可以用<code>&lt;#noescape&gt;</code>标签将不需要转义的变量包裹起来，这样就算外层有<code>&lt;#escape&gt;</code>也不会进行转义了。如果在外部有<code>&lt;#escape&gt;</code>的情况下，变量自身又做了一次转义，那么该变量会被转义两次。正常字符不会有影响，含有特殊字符的话，可能比较难看了。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shadowsick/article/details/80768868">https://blog.csdn.net/shadowsick/article/details/80768868</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/greki/blog/83246?p=1">https://my.oschina.net/greki/blog/83246?p=1</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://heqiao2010.github.io/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/" data-id="ckglvp9kh00056xwwbg65h0r8" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2019/06/21/%E5%A6%82%E4%BD%95%E5%B0%86jar%E5%8C%85%E5%8F%91%E5%B8%83%E5%88%B0%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
         
-          如何将jar包发布到中央仓库
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">VirtualBox虚拟机和宿主机实现网络互通配置</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
           </li>
         
-          <li>
-            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
-          </li>
         
-          <li>
-            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
     </div>
   </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container page-header text-center fade-in-up">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-06-20 18:00" pubdate>
+        2019年6月20日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
 
   
-</aside>
-        
-      </div>
-      <footer id="footer">
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      20
+       分钟
+    </span>
   
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 heqiao2010<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" id="post">
+            <!-- SEO header -->
+            <h1 style="display: none">Freemarker中如何避免xss漏洞</h1>
+            
+            <div class="markdown-body" id="post-body">
+              <h2 id="什么是XSS漏洞"><a href="#什么是XSS漏洞" class="headerlink" title="什么是XSS漏洞"></a>什么是XSS漏洞</h2><p>试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系统来说，用户可以输入的字段太多了，如果能够全部校验，是最好的。如果不能做的话，还可以让前端在做展示的时候进行html转义处理一下，这样原本scirpt标签以及当中的内容就被当做一个字符串展示出来，而不是当做代码执行了。一般现在的reactjs等前端框架已经默认支持防xss了。今天我遇到的问题是，有一部分freemarker写的页面存在XSS的问题。</p>
+<h2 id="FreeMarker中解决XSS"><a href="#FreeMarker中解决XSS" class="headerlink" title="FreeMarker中解决XSS"></a>FreeMarker中解决XSS</h2><p>可以通过对用户输入的字段进行html转义，来有效的避免XSS问题。freemarker模板中的变量通过${value}这样的形式引入，但是挨个修改成<code>$&#123;value?html&#125;</code>的形式未免工作量太大；查阅官方文档，通过escape标签可以对整个模板中$号引入的变量全部进行一次html转义。比如：</p>
+<pre><code class="hljs dust"><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">#assign</span> <span class="hljs-attr">x</span> = <span class="hljs-string">&quot;&lt;test&gt;&quot;</span>&gt;</span></span>
+<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">#macro</span> <span class="hljs-attr">m1</span>&gt;</span></span>
+<span class="xml">  m1: $</span><span class="hljs-template-variable">&#123;x&#125;</span>
+<span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">#macro</span>&gt;</span></span>
+<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">#escape</span> <span class="hljs-attr">x</span> <span class="hljs-attr">as</span> <span class="hljs-attr">x</span>?<span class="hljs-attr">html</span>&gt;</span></span>
+<span class="xml">  <span class="hljs-tag">&lt;<span class="hljs-name">#macro</span> <span class="hljs-attr">m2</span>&gt;</span>m2: $</span><span class="hljs-template-variable">&#123;x&#125;</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">#macro</span>&gt;</span></span>
+<span class="xml">  $</span><span class="hljs-template-variable">&#123;x&#125;</span>
+<span class="xml">  <span class="hljs-tag">&lt;<span class="hljs-name">@m1</span>/&gt;</span></span>
+<span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">#escape</span>&gt;</span></span>
+<span class="xml">$</span><span class="hljs-template-variable">&#123;x&#125;</span>
+<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">@m2</span>/&gt;</span></span></code></pre>
+<p>会输出：</p>
+<pre><code class="hljs dts">  <span class="hljs-variable">&amp;lt</span>;test<span class="hljs-variable">&amp;gt</span>;
+<span class="hljs-symbol">  m1:</span> <span class="hljs-params">&lt;test&gt;</span>
+<span class="hljs-params">&lt;test&gt;</span>
+<span class="hljs-symbol">m2:</span> <span class="hljs-variable">&amp;lt</span>;test<span class="hljs-variable">&amp;gt</span>;</code></pre>
+
+<p>这种方式完全满足现在的改造需求。在这个项目中，freemarker模板是存储在数据库中，所有用到freemarker渲染的地方均是用的同一个入口；这样工作量就不大了。我们知道，freemarker加载模板是通过TemplateLoader这个接口来实现的；只需要在加载模板的时候在模板的头部加上<code>&lt;#escape x as x?html&gt;</code>在尾部加上<code>&lt;/#escape</code>就可以对模板中所有的变量进行html转义了。通过这种方式数据库中的数据也不用修改，将来生成模板，也不需要考虑做html转义的问题。</p>
+<pre><code class="hljs csharp"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title">TemplateLoader</span> &#123;
+	
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">findTemplateSource</span>(<span class="hljs-params">String name</span>)</span>
+<span class="hljs-function">    throws IOException</span>;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-built_in">long</span> <span class="hljs-title">getLastModified</span>(<span class="hljs-params">Object templateSource</span>)</span>;
+  
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Reader <span class="hljs-title">getReader</span>(<span class="hljs-params">Object templateSource, String encoding</span>) throws IOException</span>;
+ 
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">closeTemplateSource</span>(<span class="hljs-params">Object templateSource</span>) throws IOException</span>;
+    
+&#125;</code></pre>
+<p>由于实现逻辑还是从外部读取字符串加载，所以TemplateLoader接口支持html转义的实现和StringTemplateLoader的逻辑差不多。</p>
+<pre><code class="hljs typescript"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HtmlEscapeTemplateLoader</span> <span class="hljs-title">implements</span> <span class="hljs-title">TemplateLoader</span> </span>&#123;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> final <span class="hljs-built_in">String</span> HTML_ESCAPE_PREFIX = <span class="hljs-string">&quot;&lt;#escape x as x?html&gt;&quot;</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> final <span class="hljs-built_in">String</span> HTML_ESCAPE_SUFFIX = <span class="hljs-string">&quot;&lt;/#escape&gt;&quot;</span>;
+
+    <span class="hljs-comment">// 为了支持并发，这里采用ConcurrentMap</span>
+    <span class="hljs-keyword">private</span> final <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, StringTemplateSource&gt; templates = Maps.newConcurrentMap();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-function"><span class="hljs-title">putTemplate</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> name, <span class="hljs-built_in">String</span> templateContent</span>)</span> &#123;
+        putTemplate(name, templateContent, System.currentTimeMillis());
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-function"><span class="hljs-title">putTemplate</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> name, <span class="hljs-built_in">String</span> templateContent, long lastModified</span>)</span> &#123;
+        templates.put(name, <span class="hljs-keyword">new</span> HtmlEscapeTemplateLoader.StringTemplateSource(name, templateContent, lastModified));
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">boolean</span> <span class="hljs-function"><span class="hljs-title">removeTemplate</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> name</span>)</span> &#123;
+        <span class="hljs-keyword">return</span> templates.remove(name) != <span class="hljs-literal">null</span>;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-function"><span class="hljs-title">closeTemplateSource</span>(<span class="hljs-params"><span class="hljs-built_in">Object</span> templateSource</span>)</span> &#123;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">Object</span> <span class="hljs-function"><span class="hljs-title">findTemplateSource</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> name</span>)</span> &#123;
+        <span class="hljs-keyword">return</span> templates.get(name);
+    &#125;
+
+    <span class="hljs-keyword">public</span> long <span class="hljs-function"><span class="hljs-title">getLastModified</span>(<span class="hljs-params"><span class="hljs-built_in">Object</span> templateSource</span>)</span> &#123;
+        <span class="hljs-keyword">return</span> ((HtmlEscapeTemplateLoader.StringTemplateSource) templateSource).lastModified;
+    &#125;
+
+    <span class="hljs-keyword">public</span> Reader getReader(<span class="hljs-built_in">Object</span> templateSource, <span class="hljs-built_in">String</span> encoding) throws IOException &#123;
+        Reader reader = <span class="hljs-keyword">new</span> StringReader(((StringTemplateSource) templateSource).templateContent);
+        <span class="hljs-built_in">String</span> templateText = IOUtils.toString(reader);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> StringReader(HTML_ESCAPE_PREFIX + templateText + HTML_ESCAPE_SUFFIX);
+    &#125;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StringTemplateSource</span> </span>&#123;
+        <span class="hljs-keyword">private</span> final <span class="hljs-built_in">String</span> name;
+        <span class="hljs-keyword">private</span> final <span class="hljs-built_in">String</span> templateContent;
+        <span class="hljs-keyword">private</span> final long lastModified;
+
+        <span class="hljs-function"><span class="hljs-title">StringTemplateSource</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> name, <span class="hljs-built_in">String</span> templateContent, long lastModified</span>)</span> &#123;
+            <span class="hljs-keyword">if</span> (name == <span class="hljs-literal">null</span>) &#123;
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;name == null&quot;</span>);
+            &#125;
+            <span class="hljs-keyword">if</span> (templateContent == <span class="hljs-literal">null</span>) &#123;
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;source == null&quot;</span>);
+            &#125;
+            <span class="hljs-keyword">if</span> (lastModified &lt; -<span class="hljs-number">1</span>L) &#123;
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;lastModified &lt; -1L&quot;</span>);
+            &#125;
+            <span class="hljs-built_in">this</span>.name = name;
+            <span class="hljs-built_in">this</span>.templateContent = templateContent;
+            <span class="hljs-built_in">this</span>.lastModified = lastModified;
+        &#125;
+
+        <span class="hljs-meta">@Override</span>
+        <span class="hljs-keyword">public</span> int <span class="hljs-function"><span class="hljs-title">hashCode</span>(<span class="hljs-params"></span>)</span> &#123;
+            final int prime = <span class="hljs-number">31</span>;
+            int result = <span class="hljs-number">1</span>;
+            result = prime * result + ((name == <span class="hljs-literal">null</span>) ? <span class="hljs-number">0</span> : name.hashCode());
+            <span class="hljs-keyword">return</span> result;
+        &#125;
+
+        <span class="hljs-meta">@Override</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-built_in">boolean</span> <span class="hljs-function"><span class="hljs-title">equals</span>(<span class="hljs-params"><span class="hljs-built_in">Object</span> obj</span>)</span> &#123;
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span> == obj)
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+            <span class="hljs-keyword">if</span> (obj == <span class="hljs-literal">null</span>)
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            <span class="hljs-keyword">if</span> (getClass() != obj.getClass())
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            HtmlEscapeTemplateLoader.StringTemplateSource other = (HtmlEscapeTemplateLoader.StringTemplateSource) obj;
+            <span class="hljs-keyword">if</span> (name == <span class="hljs-literal">null</span>) &#123;
+                <span class="hljs-keyword">if</span> (other.name != <span class="hljs-literal">null</span>)
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!name.equals(other.name))
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        &#125;
+
+
+        <span class="hljs-meta">@Override</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">toString</span>(<span class="hljs-params"></span>)</span> &#123;
+            <span class="hljs-keyword">return</span> name;
+        &#125;
+
+    &#125;
+
+    <span class="hljs-comment">/**</span>
+<span class="hljs-comment">     * Show class name and some details that are useful in template-not-found errors.</span>
+<span class="hljs-comment">     *</span>
+<span class="hljs-comment">     * <span class="hljs-doctag">@since </span>2.3.21</span>
+<span class="hljs-comment">     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">toString</span>(<span class="hljs-params"></span>)</span> &#123;
+        StringBuilder sb = <span class="hljs-keyword">new</span> StringBuilder();
+        sb.append(getClassNameForToString(<span class="hljs-built_in">this</span>));
+        sb.append(<span class="hljs-string">&quot;(Map &#123; &quot;</span>);
+        int cnt = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span> (<span class="hljs-built_in">String</span> name : templates.keySet()) &#123;
+            cnt++;
+            <span class="hljs-keyword">if</span> (cnt != <span class="hljs-number">1</span>) &#123;
+                sb.append(<span class="hljs-string">&quot;, &quot;</span>);
+            &#125;
+            <span class="hljs-keyword">if</span> (cnt &gt; <span class="hljs-number">10</span>) &#123;
+                sb.append(<span class="hljs-string">&quot;...&quot;</span>);
+                <span class="hljs-keyword">break</span>;
+            &#125;
+            sb.append(StringUtil.jQuote(name));
+            sb.append(<span class="hljs-string">&quot;=...&quot;</span>);
+        &#125;
+        <span class="hljs-keyword">if</span> (cnt != <span class="hljs-number">0</span>) &#123;
+            sb.append(<span class="hljs-string">&#x27; &#x27;</span>);
+        &#125;
+        sb.append(<span class="hljs-string">&quot;&#125;)&quot;</span>);
+        <span class="hljs-keyword">return</span> sb.toString();
+    &#125;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">getClassNameForToString</span>(<span class="hljs-params">TemplateLoader templateLoader</span>)</span> &#123;
+        final Class tlClass = templateLoader.getClass();
+        final Package tlPackage = tlClass.getPackage();
+        <span class="hljs-keyword">return</span> tlPackage == Configuration.class.getPackage() || tlPackage == TemplateLoader.class.getPackage()
+                ? tlClass.getSimpleName() : tlClass.getName();
+    &#125;
+&#125;</code></pre>
+<p>至此实现了在freemarker中自动进行html转义避免XSS问题的过程。参考网上有些资料可以修改freemarker的源码，对其在进行<code>$</code>号解析的时候，自动加上html转义的逻辑，也是可以的。如果某些特殊情况下，就是需要展示html形式的内容而不需要转义，或者有人错误的将变量进行了一次转义比如写成<code>$&#123;!(value)?html&#125;</code>的形式，会怎样？</p>
+<p>如果就是需要展示html形式的内容而不需要转义，可以用<code>&lt;#noescape&gt;</code>标签将不需要转义的变量包裹起来，这样就算外层有<code>&lt;#escape&gt;</code>也不会进行转义了。如果在外部有<code>&lt;#escape&gt;</code>的情况下，变量自身又做了一次转义，那么该变量会被转义两次。正常字符不会有影响，含有特殊字符的话，可能比较难看了。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shadowsick/article/details/80768868">https://blog.csdn.net/shadowsick/article/details/80768868</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/greki/blog/83246?p=1">https://my.oschina.net/greki/blog/83246?p=1</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Freemarker/">Freemarker</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Freemarker/">Freemarker</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/21/%E5%A6%82%E4%BD%95%E5%B0%86jar%E5%8C%85%E5%8F%91%E5%B8%83%E5%88%B0%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">如何将jar包发布到中央仓库</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/">
+                        <span class="hidden-mobile">VirtualBox虚拟机和宿主机实现网络互通配置</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
   </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
+</div>
   
-    <a href="/" class="mobile-nav-link">Home</a>
+
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
   
-</nav>
+  <div class="statistics">
+    
     
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
   </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '#post-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Freemarker中如何避免xss漏洞&nbsp;",
+      ],
+      cursorChar: "$",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?6148dc6aa44f407ec58f53a88f136657";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
 </body>
 </html>

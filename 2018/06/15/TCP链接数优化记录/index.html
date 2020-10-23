@@ -1,122 +1,296 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="blog of heqiao2010">
+  <meta name="author" content="HQ">
+  <meta name="keywords" content="java,go">
+  <title>TCP链接数优化记录 - heqiao2010</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+    
   
 
   
-  <title>TCP链接数优化记录 | heqiao2010</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="之前在开发无线wifi认证系统的时候，遇到一次性能问题，表现就是前端3台nginx返回大量502和504，所有接口返回慢，包括html，css以及js等资源文件的响应也很慢。在后端服务器上，用netstat查看发现有大量数据阻塞在接收队列，服务器处理不过来，同时TCP链接数很多，不过后端服务器的CPU以及内存正常，所以之前怀疑是TCP链接数过多导致的，所以后续采取了一些方法来，减少后端服务器">
-<meta property="og:type" content="article">
-<meta property="og:title" content="TCP链接数优化记录">
-<meta property="og:url" content="http://heqiao2010.github.io/2018/06/15/TCP%E9%93%BE%E6%8E%A5%E6%95%B0%E4%BC%98%E5%8C%96%E8%AE%B0%E5%BD%95/index.html">
-<meta property="og:site_name" content="heqiao2010">
-<meta property="og:description" content="之前在开发无线wifi认证系统的时候，遇到一次性能问题，表现就是前端3台nginx返回大量502和504，所有接口返回慢，包括html，css以及js等资源文件的响应也很慢。在后端服务器上，用netstat查看发现有大量数据阻塞在接收队列，服务器处理不过来，同时TCP链接数很多，不过后端服务器的CPU以及内存正常，所以之前怀疑是TCP链接数过多导致的，所以后续采取了一些方法来，减少后端服务器">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://img.hacpai.com/bing/20171207.jpg?imageView2/1/w/960/h/520/interlace/1/q/10">
-<meta property="article:published_time" content="2018-06-15T10:00:00.000Z">
-<meta property="article:modified_time" content="2020-10-22T03:32:28.825Z">
-<meta property="article:author" content="heqiao2010">
-<meta property="article:tag" content="服务端">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://img.hacpai.com/bing/20171207.jpg?imageView2/1/w/960/h/520/interlace/1/q/10">
-  
-    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
+</head>
+
 
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">heqiao2010</a>
-      </h1>
-      
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>heqiao2010</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://heqiao2010.github.io"></form>
+  </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container page-header text-center fade-in-up">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-06-15 18:00" pubdate>
+        2018年6月15日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
       </div>
     </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-TCP链接数优化记录" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/06/15/TCP%E9%93%BE%E6%8E%A5%E6%95%B0%E4%BC%98%E5%8C%96%E8%AE%B0%E5%BD%95/" class="article-date">
-  <time datetime="2018-06-15T10:00:00.000Z" itemprop="datePublished">2018-06-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a>
-  </div>
+  </header>
 
-  </div>
-  <div class="article-inner">
+  <main>
     
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      TCP链接数优化记录
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="https://img.hacpai.com/bing/20171207.jpg?imageView2/1/w/960/h/520/interlace/1/q/10"> </p>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" id="post">
+            <!-- SEO header -->
+            <h1 style="display: none">TCP链接数优化记录</h1>
+            
+            <div class="markdown-body" id="post-body">
+              <p><img src="https://img.hacpai.com/bing/20171207.jpg?imageView2/1/w/960/h/520/interlace/1/q/10" srcset="/img/loading.gif"> </p>
 <blockquote>
 <p>之前在开发无线wifi认证系统的时候，遇到一次性能问题，表现就是前端3台nginx返回大量502和504，所有接口返回慢，包括html，css以及js等资源文件的响应也很慢。在后端服务器上，用<code>netstat</code>查看发现有大量数据阻塞在接收队列，服务器处理不过来，同时TCP链接数很多，不过后端服务器的CPU以及内存正常，所以之前怀疑是TCP链接数过多导致的，所以后续采取了一些方法来，减少后端服务器和前端nginx之间的链接数。</p>
 </blockquote>
 <h3 id="查看TCP链接"><a href="#查看TCP链接" class="headerlink" title="查看TCP链接"></a>查看TCP链接</h3><ol>
 <li>查看TCP链接总数<br>总体来说，TCP连接数偏多</li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@portal-nginx2 ~]# netstat -an | grep ES| wc -l</span><br><span class="line">6326</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs coffeescript">[root@portal-nginx2 ~]<span class="hljs-comment"># netstat -an | grep ES| wc -l</span>
+<span class="hljs-number">6326</span></code></pre>
 
 <ol start="2">
 <li>查看TCP链接队列情况<br>如果接受队列阻塞了，说明后端服务处理请求太慢了，有性能问题；如果发送队列包很多，说明接收端有问题，或者虚机网络问题。</li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Active Internet connections (servers and established)</span><br><span class="line">Proto Recv-Q Send-Q Local Address           Foreign Address         State</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">tcp        0  10369 192.168.1.10:10080      100.125.64.100:16916    ESTABLISHED</span><br><span class="line">tcp        0  13169 192.168.1.10:10080      100.125.64.97:16809     ESTABLISHED</span><br><span class="line">tcp        0  13568 192.168.1.10:10080      100.125.64.96:17071     ESTABLISHED</span><br><span class="line">tcp        0  13595 192.168.1.10:10080      100.125.64.97:17074     ESTABLISHED</span><br><span class="line">tcp        0  13596 192.168.1.10:10080      100.125.64.98:17070     ESTABLISHED</span><br><span class="line">tcp        0  14600 192.168.1.10:10080      100.125.64.109:23059    ESTABLISHED</span><br><span class="line">tcp        0  14851 192.168.1.10:10080      100.125.64.103:23019    ESTABLISHED</span><br><span class="line">tcp        0  16157 192.168.1.10:10080      100.125.64.82:16914     ESTABLISHED</span><br><span class="line">tcp        0  17680 192.168.1.10:10443      100.125.64.104:18713    ESTABLISHED</span><br><span class="line">tcp        0  18653 192.168.1.10:10080      100.125.64.126:56441    ESTABLISHED</span><br><span class="line">tcp        0  19766 192.168.1.10:10443      100.125.64.114:18725    ESTABLISHED</span><br><span class="line">tcp        0  32120 192.168.1.10:10080      100.125.64.117:23044    ESTABLISHED</span><br><span class="line">tcp        0  45716 192.168.1.10:10443      100.125.64.113:18725    ESTABLISHED</span><br><span class="line">tcp        0  47955 192.168.1.10:10080      100.125.64.116:23033    ESTABLISHED</span><br><span class="line">tcp        0  54595 192.168.1.10:10080      100.125.64.90:16961     ESTABLISHED</span><br><span class="line">tcp        0  54600 192.168.1.10:10080      100.125.64.85:16961     ESTABLISHED</span><br><span class="line">tcp        0  62454 192.168.1.10:10080      100.125.64.149:46132    ESTABLISHED</span><br><span class="line">tcp        0  63689 192.168.1.10:10080      100.125.64.127:56506    ESTABLISHED</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs angelscript">Active Internet connections (servers <span class="hljs-keyword">and</span> established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+...
+
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">10369</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.100</span>:<span class="hljs-number">16916</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">13169</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.97</span>:<span class="hljs-number">16809</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">13568</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.96</span>:<span class="hljs-number">17071</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">13595</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.97</span>:<span class="hljs-number">17074</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">13596</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.98</span>:<span class="hljs-number">17070</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">14600</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.109</span>:<span class="hljs-number">23059</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">14851</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.103</span>:<span class="hljs-number">23019</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">16157</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.82</span>:<span class="hljs-number">16914</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">17680</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10443</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.104</span>:<span class="hljs-number">18713</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">18653</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.126</span>:<span class="hljs-number">56441</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">19766</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10443</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.114</span>:<span class="hljs-number">18725</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">32120</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.117</span>:<span class="hljs-number">23044</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">45716</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10443</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.113</span>:<span class="hljs-number">18725</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">47955</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.116</span>:<span class="hljs-number">23033</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">54595</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.90</span>:<span class="hljs-number">16961</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">54600</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.85</span>:<span class="hljs-number">16961</span>     ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">62454</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.149</span>:<span class="hljs-number">46132</span>    ESTABLISHED
+tcp        <span class="hljs-number">0</span>  <span class="hljs-number">63689</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.10</span>:<span class="hljs-number">10080</span>      <span class="hljs-number">100.125</span><span class="hljs-number">.64</span><span class="hljs-number">.127</span>:<span class="hljs-number">56506</span>    ESTABLISHED</code></pre>
 
 
 
 <h3 id="系统参数设置"><a href="#系统参数设置" class="headerlink" title="系统参数设置"></a>系统参数设置</h3><p>这几个系统参数，印象最深的是<code>net.ipv4.tcp_fin_timeout</code>,系统默认值是60，表示链接断开后，链接保持fin_wait的时间（我记得阿里的java开发规范里有提到这个）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@XXX ~]# cat &#x2F;etc&#x2F;sysctl.conf</span><br><span class="line"># sysctl settings are defined through files in</span><br><span class="line"># &#x2F;usr&#x2F;lib&#x2F;sysctl.d&#x2F;, &#x2F;run&#x2F;sysctl.d&#x2F;, and &#x2F;etc&#x2F;sysctl.d&#x2F;.</span><br><span class="line">#</span><br><span class="line"># Vendors settings live in &#x2F;usr&#x2F;lib&#x2F;sysctl.d&#x2F;.</span><br><span class="line"># To override a whole file, create a new file with the same in</span><br><span class="line"># &#x2F;etc&#x2F;sysctl.d&#x2F; and put new settings there. To override</span><br><span class="line"># only specific settings, add a file with a lexically later</span><br><span class="line"># name in &#x2F;etc&#x2F;sysctl.d&#x2F; and put new settings there.</span><br><span class="line">#</span><br><span class="line"># For more information, see sysctl.conf(5) and sysctl.d(5).</span><br><span class="line">net.ipv4.icmp_echo_ignore_broadcasts &#x3D; 1 #避免放大攻击</span><br><span class="line">net.ipv4.tcp_max_syn_backlog&#x3D;8192  #表示SYN队列的长度，默认为1024</span><br><span class="line">net.core.netdev_max_backlog&#x3D;30000   #进入包的最大设备队列.默认是1000</span><br><span class="line">net.core.somaxconn&#x3D;8192 #挂起请求的最大数量.默认是128.</span><br><span class="line">net.ipv4.ip_local_port_range &#x3D; 3000     65000  #端口范围，可用端口数</span><br><span class="line">net.ipv4.tcp_fin_timeout &#x3D; 30</span><br><span class="line">net.ipv4.tcp_max_tw_buckets&#x3D;5000 #表示系统同时保持TIME_WAIT套接字的最大数量</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs ini"><span class="hljs-section">[root@XXX ~]</span><span class="hljs-comment"># cat /etc/sysctl.conf</span>
+<span class="hljs-comment"># sysctl settings are defined through files in</span>
+<span class="hljs-comment"># /usr/lib/sysctl.d/, /run/sysctl.d/, and /etc/sysctl.d/.</span>
+<span class="hljs-comment">#</span>
+<span class="hljs-comment"># Vendors settings live in /usr/lib/sysctl.d/.</span>
+<span class="hljs-comment"># To override a whole file, create a new file with the same in</span>
+<span class="hljs-comment"># /etc/sysctl.d/ and put new settings there. To override</span>
+<span class="hljs-comment"># only specific settings, add a file with a lexically later</span>
+<span class="hljs-comment"># name in /etc/sysctl.d/ and put new settings there.</span>
+<span class="hljs-comment">#</span>
+<span class="hljs-comment"># For more information, see sysctl.conf(5) and sysctl.d(5).</span>
+<span class="hljs-attr">net.ipv4.icmp_echo_ignore_broadcasts</span> = <span class="hljs-number">1</span> <span class="hljs-comment">#避免放大攻击</span>
+<span class="hljs-attr">net.ipv4.tcp_max_syn_backlog</span>=<span class="hljs-number">8192</span>  <span class="hljs-comment">#表示SYN队列的长度，默认为1024</span>
+<span class="hljs-attr">net.core.netdev_max_backlog</span>=<span class="hljs-number">30000</span>   <span class="hljs-comment">#进入包的最大设备队列.默认是1000</span>
+<span class="hljs-attr">net.core.somaxconn</span>=<span class="hljs-number">8192</span> <span class="hljs-comment">#挂起请求的最大数量.默认是128.</span>
+<span class="hljs-attr">net.ipv4.ip_local_port_range</span> = <span class="hljs-number">3000</span>     <span class="hljs-number">65000</span>  <span class="hljs-comment">#端口范围，可用端口数</span>
+<span class="hljs-attr">net.ipv4.tcp_fin_timeout</span> = <span class="hljs-number">30</span>
+<span class="hljs-attr">net.ipv4.tcp_max_tw_buckets</span>=<span class="hljs-number">5000</span> <span class="hljs-comment">#表示系统同时保持TIME_WAIT套接字的最大数量</span></code></pre>
 
 <p>修改完后，<code>sysctl -p</code>生效。</p>
 <h3 id="反向代理设置"><a href="#反向代理设置" class="headerlink" title="反向代理设置"></a>反向代理设置</h3><p>nginx.conf中的upstream配置增加keepalive参数，keepalive后的参数是以秒为单位的时间。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">upstream portal &#123;</span><br><span class="line">            server 192.168.1.128:7878;</span><br><span class="line">            server 192.168.1.60:7878;</span><br><span class="line">            server 192.168.1.82:7878;</span><br><span class="line">            server 192.168.1.69:7878;</span><br><span class="line">            server 192.168.1.253:7878;</span><br><span class="line">            server 192.168.1.160:7878;</span><br><span class="line">            server 192.168.1.33:7878;</span><br><span class="line">            keepalive 500;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs routeros">upstream portal &#123;
+           <span class="hljs-built_in"> server </span>192.168.1.128:7878;
+           <span class="hljs-built_in"> server </span>192.168.1.60:7878;
+           <span class="hljs-built_in"> server </span>192.168.1.82:7878;
+           <span class="hljs-built_in"> server </span>192.168.1.69:7878;
+           <span class="hljs-built_in"> server </span>192.168.1.253:7878;
+           <span class="hljs-built_in"> server </span>192.168.1.160:7878;
+           <span class="hljs-built_in"> server </span>192.168.1.33:7878;
+            keepalive 500;
+    &#125;</code></pre>
 
 <p>这里谈到keepalive就想到了TCP的keepalive了，TCP的keepalive机制实际上是在没有数据传输的一个保活机制。TCP在3次握手之后，就可以开始传输数据了，但是当没有数据可传输的时候，为了知道对端是否还保持这个链接，TCP协议会定期发送一个数据为空的探测报文，看看对端是否会响应这个报文，如果不响应，则说明这个链接已经丢失了。TCP的keepalive可以设置TCP协议在没有数据传输后多久开始发送探测报文，以及发送探测报文重试次数等等。</p>
 <p>实际上上面nginx.conf中，这个keepalive不是配置TCP探测报文的（nginx.conf中真正TCP探测报文的配置是通过<code>so_keepalive</code>控制的），这个keepalive的官方解释如下：</p>
@@ -126,157 +300,307 @@
 <li>It should be particularly noted that the keepalive directive does not limit the total number of connections to upstream servers that an nginx worker process can open.（特别提醒：keepalive指令不会限制一个nginx worker进程到upstream服务器连接的总数量）</li>
 </ol>
 <p>http的传输层协议是TCP，一个http请求是通过TCP传输的数据，当一个http请求发出，然后得到响应之后，TCP链接可能会关闭，下一次发起http请求时，再重新创建TCP链接，这个过程，必然会有TCP多次创建的过程，而创建过程会消耗额外资源。如果能够在一段时间内复用之前已经创建的TCP链接，则可以提升效率。这个超时时间可以通过nginx.conf中http部分的<code>keepalive_timeout</code>来控制。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keepalive_timeout timeout [header_timeout];</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs abnf">keepalive_timeout timeout [header_timeout]<span class="hljs-comment">;</span></code></pre>
 
 <p>参考1：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaoleiel/p/8308514.html">https://www.cnblogs.com/xiaoleiel/p/8308514.html</a><br>参考2：<a target="_blank" rel="noopener" href="https://blog.csdn.net/dream_flying_bj/article/details/54709549">https://blog.csdn.net/dream_flying_bj/article/details/54709549</a></p>
 
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://heqiao2010.github.io/2018/06/15/TCP%E9%93%BE%E6%8E%A5%E6%95%B0%E4%BC%98%E5%8C%96%E8%AE%B0%E5%BD%95/" data-id="ckglvp9ky00136xww67dl968n" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li></ul>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/06/18/Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java垃圾回收</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/06/14/Shell%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%87%A0%E4%B8%AAHttp%E4%BA%A4%E4%BA%92%E7%9A%84%E6%96%B9%E6%B3%95/">
+                        <span class="hidden-mobile">Shell 实现的几个Http交互的方法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
 
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2018/06/18/Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Java垃圾回收
-        
+            
+          </article>
+        </div>
       </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
     </a>
   
-  
-    <a href="/2018/06/14/Shell%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%87%A0%E4%B8%AAHttp%E4%BA%A4%E4%BA%92%E7%9A%84%E6%96%B9%E6%B3%95/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Shell 实现的几个Http交互的方法</div>
-    </a>
-  
-</nav>
 
   
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 heqiao2010<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
   </div>
+</div>
+  
+
+  
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
 </footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
 
 
   
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
 
   
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-<script src="/js/script.js"></script>
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '#post-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "TCP链接数优化记录&nbsp;",
+      ],
+      cursorChar: "$",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
 
 
 
 
-  </div>
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?6148dc6aa44f407ec58f53a88f136657";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
 </body>
 </html>

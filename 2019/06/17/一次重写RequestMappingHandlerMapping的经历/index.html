@@ -1,99 +1,227 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="blog of heqiao2010">
+  <meta name="author" content="HQ">
+  <meta name="keywords" content="java,go">
+  <title>记一次重写RequestMappingHandlerMapping的经历 - heqiao2010</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+    
   
 
   
-  <title>记一次重写RequestMappingHandlerMapping的经历 | heqiao2010</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="近期公司的产品做了一次安全审查，发现后端提供的接口有不安全的Http方法漏洞。不安全的HTTP方法一般包括：TRACE、PUT、DELETE、COPY 等。其中最常见的为TRACE方法可以回显服务器收到的请求，主要用于测试或诊断，恶意攻击者可以利用该方法进行跨站跟踪攻击（即XST攻击），从而进行网站钓鱼、盗取管理员cookie等。  原因分析引起这个问题的原因其实很简单，因为开发人员开发接口的时">
-<meta property="og:type" content="article">
-<meta property="og:title" content="记一次重写RequestMappingHandlerMapping的经历">
-<meta property="og:url" content="http://heqiao2010.github.io/2019/06/17/%E4%B8%80%E6%AC%A1%E9%87%8D%E5%86%99RequestMappingHandlerMapping%E7%9A%84%E7%BB%8F%E5%8E%86/index.html">
-<meta property="og:site_name" content="heqiao2010">
-<meta property="og:description" content="近期公司的产品做了一次安全审查，发现后端提供的接口有不安全的Http方法漏洞。不安全的HTTP方法一般包括：TRACE、PUT、DELETE、COPY 等。其中最常见的为TRACE方法可以回显服务器收到的请求，主要用于测试或诊断，恶意攻击者可以利用该方法进行跨站跟踪攻击（即XST攻击），从而进行网站钓鱼、盗取管理员cookie等。  原因分析引起这个问题的原因其实很简单，因为开发人员开发接口的时">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2019-06-17T10:00:00.000Z">
-<meta property="article:modified_time" content="2020-10-22T06:46:02.610Z">
-<meta property="article:author" content="heqiao2010">
-<meta property="article:tag" content="Spring">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
-<meta name="generator" content="Hexo 5.2.0"></head>
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
+</head>
+
 
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">heqiao2010</a>
-      </h1>
-      
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>heqiao2010</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://heqiao2010.github.io"></form>
+  </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container page-header text-center fade-in-up">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-06-17 18:00" pubdate>
+        2019年6月17日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      17
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
       </div>
     </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-一次重写RequestMappingHandlerMapping的经历" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/06/17/%E4%B8%80%E6%AC%A1%E9%87%8D%E5%86%99RequestMappingHandlerMapping%E7%9A%84%E7%BB%8F%E5%8E%86/" class="article-date">
-  <time datetime="2019-06-17T10:00:00.000Z" itemprop="datePublished">2019-06-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Spring/">Spring</a>
-  </div>
+  </header>
 
-  </div>
-  <div class="article-inner">
+  <main>
     
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      记一次重写RequestMappingHandlerMapping的经历
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
       
-        <blockquote>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" id="post">
+            <!-- SEO header -->
+            <h1 style="display: none">记一次重写RequestMappingHandlerMapping的经历</h1>
+            
+            <div class="markdown-body" id="post-body">
+              <blockquote>
 <p>近期公司的产品做了一次安全审查，发现后端提供的接口有<strong>不安全的Http方法</strong>漏洞。不安全的HTTP方法一般包括：TRACE、PUT、DELETE、COPY 等。其中最常见的为TRACE方法可以回显服务器收到的请求，主要用于测试或诊断，恶意攻击者可以利用该方法进行跨站跟踪攻击（即XST攻击），从而进行网站钓鱼、盗取管理员cookie等。</p>
 </blockquote>
 <h2 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h2><p>引起这个问题的原因其实很简单，因为开发人员开发接口的时候偷懒没有指定RequestMapping中的method属性导致的。没有指定method则系统会默认支持除了TRACE之外的其他７中方式，所以，这就是我要重写的RequestMappingHandlerMapping原因。</p>
@@ -101,177 +229,454 @@
 <p>在没有指定method的情况下，只支持GET和POST；在明确指定method的情况下，保留指定的method。</p>
 <h2 id="为什么重写的是RequestMappingHandlerMapping"><a href="#为什么重写的是RequestMappingHandlerMapping" class="headerlink" title="为什么重写的是RequestMappingHandlerMapping"></a>为什么重写的是RequestMappingHandlerMapping</h2><p>首先后端提供的Http请求均是通过RestController和RequestMapping(或者衍生的GetMapping/PostMapping等)来实现的。那在接收http请求之后，如何将http请求映射到具体的Controller中的方法上呢？答案在HandlerMapping这个接口。这个具体映射过程细节以后再说，而HandlerMapping接口的映射方法getHandler是在AbstractHandlerMapping中实现的，而AbstractHandlerMapping的一个非抽象子类就是RequestMappingHandlerMapping。</p>
 <h2 id="重写RequestMappingHandlerMapping的哪个方法"><a href="#重写RequestMappingHandlerMapping的哪个方法" class="headerlink" title="重写RequestMappingHandlerMapping的哪个方法"></a>重写RequestMappingHandlerMapping的哪个方法</h2><p>从RequestMappingHandlerMapping中的getMappingForMethod方法可以看出，接口的映射信息，是由两部分组成的。一部分是来自于Controller类上的RequestMapping注解，一部分是来自于方法上的RequestMapping注解。所以，在这个方法中createRequestMappingInfo调用了两次，然后再组合。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">	protected RequestMappingInfo getMappingForMethod(Method method, Class&lt;?&gt; handlerType) &#123;</span><br><span class="line">		RequestMappingInfo info &#x3D; createRequestMappingInfo(method);</span><br><span class="line">		if (info !&#x3D; null) &#123;</span><br><span class="line">			RequestMappingInfo typeInfo &#x3D; createRequestMappingInfo(handlerType);</span><br><span class="line">			if (typeInfo !&#x3D; null) &#123;</span><br><span class="line">				info &#x3D; typeInfo.combine(info);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return info;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs oxygene">@<span class="hljs-keyword">Override</span>
+	<span class="hljs-keyword">protected</span> RequestMappingInfo getMappingForMethod(<span class="hljs-function"><span class="hljs-keyword">Method</span> <span class="hljs-title">method</span>, <span class="hljs-title">Class</span>&lt;?&gt; <span class="hljs-title">handlerType</span>) <span class="hljs-comment">&#123;</span></span>
+<span class="hljs-function"><span class="hljs-comment">		RequestMappingInfo info = createRequestMappingInfo(method);</span></span>
+<span class="hljs-function"><span class="hljs-comment">		if (info != null) &#123;</span></span>
+<span class="hljs-function"><span class="hljs-comment">			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);</span></span>
+<span class="hljs-function"><span class="hljs-comment">			if (typeInfo != null) &#123;</span></span>
+<span class="hljs-function"><span class="hljs-comment">				info = typeInfo.combine(info);</span></span>
+<span class="hljs-function"><span class="hljs-comment">			&#125;</span></span>
+<span class="hljs-function">		&#125;</span>
+<span class="hljs-function">		<span class="hljs-title">return</span> <span class="hljs-title">info</span>;</span>
+	&#125;</code></pre>
 
 <p>真正的createRequestMappingInfo有一个代理方法。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) &#123;</span><br><span class="line">		RequestMapping requestMapping &#x3D; AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);</span><br><span class="line">		RequestCondition&lt;?&gt; condition &#x3D; (element instanceof Class ?</span><br><span class="line">				getCustomTypeCondition((Class&lt;?&gt;) element) : getCustomMethodCondition((Method) element));</span><br><span class="line">		return (requestMapping !&#x3D; null ? createRequestMappingInfo(requestMapping, condition) : null);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs reasonml"><span class="hljs-keyword">private</span> RequestMappingInfo create<span class="hljs-constructor">RequestMappingInfo(AnnotatedElement <span class="hljs-params">element</span>)</span> &#123;
+		RequestMapping requestMapping = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AnnotatedElementUtils</span>.</span></span>find<span class="hljs-constructor">MergedAnnotation(<span class="hljs-params">element</span>, RequestMapping.<span class="hljs-params">class</span>)</span>;
+		RequestCondition&lt;?&gt; condition = (element instanceof Class ?
+				get<span class="hljs-constructor">CustomTypeCondition((Class&lt;?&gt;)</span> element) : get<span class="hljs-constructor">CustomMethodCondition((Method)</span> element));
+		return (requestMapping != null ? create<span class="hljs-constructor">RequestMappingInfo(<span class="hljs-params">requestMapping</span>, <span class="hljs-params">condition</span>)</span> : null);
+	&#125;</code></pre>
 
 <p>在createRequestMappingInfo中，找到我们想要改动的地方了。在RequestMappingInfo设置method的时候增加一段自己的逻辑即可。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">protected RequestMappingInfo createRequestMappingInfo(</span><br><span class="line">			RequestMapping requestMapping, RequestCondition&lt;?&gt; customCondition) &#123;</span><br><span class="line"></span><br><span class="line">		return RequestMappingInfo</span><br><span class="line">				.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))</span><br><span class="line">				.methods(requestMapping.method())</span><br><span class="line">				.params(requestMapping.params())</span><br><span class="line">				.headers(requestMapping.headers())</span><br><span class="line">				.consumes(requestMapping.consumes())</span><br><span class="line">				.produces(requestMapping.produces())</span><br><span class="line">				.mappingName(requestMapping.name())</span><br><span class="line">				.customCondition(customCondition)</span><br><span class="line">				.options(this.config)</span><br><span class="line">				.build();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs less"><span class="hljs-selector-tag">protected</span> <span class="hljs-selector-tag">RequestMappingInfo</span> <span class="hljs-selector-tag">createRequestMappingInfo</span>(
+			RequestMapping requestMapping, RequestCondition&lt;?&gt; customCondition) &#123;
+
+		<span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">RequestMappingInfo</span>
+				<span class="hljs-selector-class">.paths</span>(resolveEmbeddedValuesInPatterns(requestMapping.path()))
+				<span class="hljs-selector-class">.methods</span>(requestMapping.method())
+				<span class="hljs-selector-class">.params</span>(requestMapping.params())
+				<span class="hljs-selector-class">.headers</span>(requestMapping.headers())
+				<span class="hljs-selector-class">.consumes</span>(requestMapping.consumes())
+				<span class="hljs-selector-class">.produces</span>(requestMapping.produces())
+				<span class="hljs-selector-class">.mappingName</span>(requestMapping.name())
+				<span class="hljs-selector-class">.customCondition</span>(customCondition)
+				<span class="hljs-selector-class">.options</span>(this.config)
+				<span class="hljs-selector-class">.build</span>();
+	&#125;</code></pre>
 
 <p>至此,可以重写RequestMappingHandlerMapping如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">public class HttpSafetyRequestMappingHandlerMapping extends RequestMappingHandlerMapping&#123;</span><br><span class="line"></span><br><span class="line">    private RequestMappingInfo.BuilderConfiguration config &#x3D; new RequestMappingInfo.BuilderConfiguration();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected RequestMappingInfo createRequestMappingInfo(RequestMapping requestMapping,</span><br><span class="line">                                                          RequestCondition&lt;?&gt; customCondition) &#123;</span><br><span class="line">        &#x2F;&#x2F; 如果Controller的方法上RequestMapping没有指定Method，则只支持GET和POST</span><br><span class="line">        RequestMethod[] methods &#x3D; &#123; RequestMethod.GET, RequestMethod.POST &#125;;</span><br><span class="line"></span><br><span class="line">        if(requestMapping.method().length !&#x3D; 0)&#123;</span><br><span class="line">            methods &#x3D; requestMapping.method();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return RequestMappingInfo</span><br><span class="line">                .paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))</span><br><span class="line">                .methods(methods)</span><br><span class="line">                .params(requestMapping.params())</span><br><span class="line">                .headers(requestMapping.headers())</span><br><span class="line">                .consumes(requestMapping.consumes())</span><br><span class="line">                .produces(requestMapping.produces())</span><br><span class="line">                .mappingName(requestMapping.name())</span><br><span class="line">                .customCondition(customCondition)</span><br><span class="line">                .options(config)</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected RequestMappingInfo getMappingForMethod(Method method, Class&lt;?&gt; handlerType) &#123;</span><br><span class="line">        RequestMappingInfo info &#x3D; createRequestMappingInfo(method);</span><br><span class="line">        if (info !&#x3D; null) &#123;</span><br><span class="line">            RequestMappingInfo typeInfo &#x3D; createRequestMappingInfo(handlerType);</span><br><span class="line">            if (typeInfo !&#x3D; null) &#123;</span><br><span class="line">                info &#x3D; typeInfo.combine(info);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return info;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) &#123;</span><br><span class="line">        RequestMapping requestMapping &#x3D; AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);</span><br><span class="line">        RequestCondition&lt;?&gt; condition &#x3D; (element instanceof Class ?</span><br><span class="line">                getCustomTypeCondition((Class&lt;?&gt;) element) : getCustomMethodCondition((Method) element));</span><br><span class="line">        if(requestMapping &#x3D;&#x3D; null)&#123;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 只需要处理方法上的RequestMapping，Controller类上的不需要处理</span><br><span class="line">        if(element instanceof Class)&#123;</span><br><span class="line">            return super.createRequestMappingInfo(requestMapping, condition);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return createRequestMappingInfo(requestMapping, condition);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void afterPropertiesSet() &#123;</span><br><span class="line">        this.config &#x3D; new RequestMappingInfo.BuilderConfiguration();</span><br><span class="line">        this.config.setUrlPathHelper(getUrlPathHelper());</span><br><span class="line">        this.config.setPathMatcher(getPathMatcher());</span><br><span class="line">        this.config.setSuffixPatternMatch(useSuffixPatternMatch());</span><br><span class="line">        this.config.setTrailingSlashMatch(useTrailingSlashMatch());</span><br><span class="line">        this.config.setRegisteredSuffixPatternMatch(useRegisteredSuffixPatternMatch());</span><br><span class="line">        this.config.setContentNegotiationManager(getContentNegotiationManager());</span><br><span class="line">        super.afterPropertiesSet();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs typescript"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HttpSafetyRequestMappingHandlerMapping</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RequestMappingHandlerMapping</span></span>&#123;
+
+    <span class="hljs-keyword">private</span> RequestMappingInfo.BuilderConfiguration config = <span class="hljs-keyword">new</span> RequestMappingInfo.BuilderConfiguration();
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> RequestMappingInfo createRequestMappingInfo(RequestMapping requestMapping,
+                                                          RequestCondition&lt;?&gt; customCondition) &#123;
+        <span class="hljs-comment">// 如果Controller的方法上RequestMapping没有指定Method，则只支持GET和POST</span>
+        RequestMethod[] methods = &#123; RequestMethod.GET, RequestMethod.POST &#125;;
+
+        <span class="hljs-function"><span class="hljs-title">if</span>(<span class="hljs-params">requestMapping.method().length != <span class="hljs-number">0</span></span>)</span>&#123;
+            methods = requestMapping.method();
+        &#125;
+
+        <span class="hljs-keyword">return</span> RequestMappingInfo
+                .paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
+                .methods(methods)
+                .params(requestMapping.params())
+                .headers(requestMapping.headers())
+                .consumes(requestMapping.consumes())
+                .produces(requestMapping.produces())
+                .mappingName(requestMapping.name())
+                .customCondition(customCondition)
+                .options(config)
+                .build();
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> RequestMappingInfo <span class="hljs-function"><span class="hljs-title">getMappingForMethod</span>(<span class="hljs-params">Method method, Class&lt;?&gt; handlerType</span>)</span> &#123;
+        RequestMappingInfo info = createRequestMappingInfo(method);
+        <span class="hljs-keyword">if</span> (info != <span class="hljs-literal">null</span>) &#123;
+            RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
+            <span class="hljs-keyword">if</span> (typeInfo != <span class="hljs-literal">null</span>) &#123;
+                info = typeInfo.combine(info);
+            &#125;
+        &#125;
+        <span class="hljs-keyword">return</span> info;
+    &#125;
+
+    <span class="hljs-keyword">private</span> RequestMappingInfo <span class="hljs-function"><span class="hljs-title">createRequestMappingInfo</span>(<span class="hljs-params">AnnotatedElement element</span>)</span> &#123;
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
+        RequestCondition&lt;?&gt; condition = (element <span class="hljs-keyword">instanceof</span> Class ?
+                getCustomTypeCondition((Class&lt;?&gt;) element) : getCustomMethodCondition((Method) element));
+        <span class="hljs-function"><span class="hljs-title">if</span>(<span class="hljs-params">requestMapping == <span class="hljs-literal">null</span></span>)</span>&#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+        &#125;
+        <span class="hljs-comment">// 只需要处理方法上的RequestMapping，Controller类上的不需要处理</span>
+        <span class="hljs-function"><span class="hljs-title">if</span>(<span class="hljs-params">element <span class="hljs-keyword">instanceof</span> Class</span>)</span>&#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.createRequestMappingInfo(requestMapping, condition);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">return</span> createRequestMappingInfo(requestMapping, condition);
+        &#125;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-function"><span class="hljs-title">afterPropertiesSet</span>(<span class="hljs-params"></span>)</span> &#123;
+        <span class="hljs-built_in">this</span>.config = <span class="hljs-keyword">new</span> RequestMappingInfo.BuilderConfiguration();
+        <span class="hljs-built_in">this</span>.config.setUrlPathHelper(getUrlPathHelper());
+        <span class="hljs-built_in">this</span>.config.setPathMatcher(getPathMatcher());
+        <span class="hljs-built_in">this</span>.config.setSuffixPatternMatch(useSuffixPatternMatch());
+        <span class="hljs-built_in">this</span>.config.setTrailingSlashMatch(useTrailingSlashMatch());
+        <span class="hljs-built_in">this</span>.config.setRegisteredSuffixPatternMatch(useRegisteredSuffixPatternMatch());
+        <span class="hljs-built_in">this</span>.config.setContentNegotiationManager(getContentNegotiationManager());
+        <span class="hljs-built_in">super</span>.afterPropertiesSet();
+    &#125;
+&#125;</code></pre>
 
 <h2 id="如何替换"><a href="#如何替换" class="headerlink" title="如何替换"></a>如何替换</h2><p>网关服务采用Spring boot开发，那么我们可以从<code>org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration</code>入手。此类中有一个内部类：EnableWebMvcConfiguration，它继承并重写了createRequestMappingHandlerMapping方法。我们知道，在WebMvcConfigurationSupport类中，RequestMappingHandlerMapping实例的获取是通过其：requestMappingHandlerMapping方法上增加Bean注解来实现的。</p>
 <p>这几个类的关系：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">WebMvcConfigurationSupport</span><br><span class="line">^</span><br><span class="line">| 继承</span><br><span class="line">DelegatingWebMvcConfiguration</span><br><span class="line">^</span><br><span class="line">| 继承</span><br><span class="line">EnableWebMvcConfiguration</span><br><span class="line">^      ^ </span><br><span class="line">|      | @Import</span><br><span class="line">|　WebMvcAutoConfigurationAdapter</span><br><span class="line">|　　　　　　　 ^ 静态内部类</span><br><span class="line">|             |</span><br><span class="line">| 静态内部类　　|</span><br><span class="line">WebMvcAutoConfiguration</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<pre><code class="hljs gherkin">WebMvcConfigurationSupport
+^
+|<span class="hljs-string"> 继承</span>
+<span class="hljs-string">DelegatingWebMvcConfiguration</span>
+<span class="hljs-string">^</span>
+|<span class="hljs-string"> 继承</span>
+<span class="hljs-string">EnableWebMvcConfiguration</span>
+<span class="hljs-string">^      ^ </span>
+|<span class="hljs-string">      </span>|<span class="hljs-string"> @Import</span>
+|<span class="hljs-string">　WebMvcAutoConfigurationAdapter</span>
+|<span class="hljs-string">　　　　　　　 ^ 静态内部类</span>
+|<span class="hljs-string">             </span>|
+|<span class="hljs-string"> 静态内部类　　</span>|
+WebMvcAutoConfiguration
+</code></pre>
 
 <p>在WebMvcConfigurationSupport的requestMappingHandlerMapping方法中，RequestMappingHanlderMapping是通过调用createRequestMappingHandlerMapping方法来实现的。所以要覆盖RequestMappingHanlderMapping的实现，只需要重写createRequestMappingHandlerMapping即可。而EnableWebMvcConfiguration已经将这个方法重写如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">      @Override</span><br><span class="line">protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() &#123;</span><br><span class="line">	if (this.mvcRegistrations !&#x3D; null</span><br><span class="line">			&amp;&amp; this.mvcRegistrations.getRequestMappingHandlerMapping() !&#x3D; null) &#123;</span><br><span class="line">		return this.mvcRegistrations.getRequestMappingHandlerMapping();</span><br><span class="line">	&#125;</span><br><span class="line">	return super.createRequestMappingHandlerMapping();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs kotlin">      <span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">protected</span> RequestMappingHandlerMapping createRequestMappingHandlerMapping() &#123;
+	<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.mvcRegistrations != <span class="hljs-literal">null</span>
+			&amp;&amp; <span class="hljs-keyword">this</span>.mvcRegistrations.getRequestMappingHandlerMapping() != <span class="hljs-literal">null</span>) &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.mvcRegistrations.getRequestMappingHandlerMapping();
+	&#125;
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.createRequestMappingHandlerMapping();
+&#125;</code></pre>
 <p>从上面的代码可以看出，EnableWebMvcConfiguration已经提供了替换RequestMappingHandlerMapping的方式，那就是：WebMvcRegistrations。而WebMvcRegistrations是个接口，并有一个默认的空实现：WebMvcRegistrationsAdapter，只需要覆盖其中的getRequestMappingHandlerMapping方法即可。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class SafetyWebMvcRegistrationsAdapter extends WebMvcRegistrationsAdapter&#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public RequestMappingHandlerMapping getRequestMappingHandlerMapping() &#123;</span><br><span class="line">        return new HttpSafetyRequestMappingHandlerMapping();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs scala"><span class="hljs-meta">@Component</span>
+public <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SafetyWebMvcRegistrationsAdapter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">WebMvcRegistrationsAdapter</span></span>&#123;
+
+    <span class="hljs-meta">@Override</span>
+    public <span class="hljs-type">RequestMappingHandlerMapping</span> getRequestMappingHandlerMapping() &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-type">HttpSafetyRequestMappingHandlerMapping</span>();
+    &#125;
+&#125;</code></pre>
 <p>至此Sping boot中替换RequestMappingHandlerMapping的实现就结束了。</p>
 <p>不过我们另一个服务采用的是Spring mvc,上面的替换就不生效了。因为服务中WebApplicationContext是通过@EnableWebMvc注入的配置。而在这个注解中导入的实际上是DelegatingWebMvcConfiguration。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Target(ElementType.TYPE)</span><br><span class="line">@Documented</span><br><span class="line">@Import(DelegatingWebMvcConfiguration.class)</span><br><span class="line">public @interface EnableWebMvc &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs less"><span class="hljs-variable">@Retention</span>(RetentionPolicy.RUNTIME)
+<span class="hljs-variable">@Target</span>(ElementType.TYPE)
+<span class="hljs-variable">@Documented</span>
+<span class="hljs-variable">@Import</span>(DelegatingWebMvcConfiguration.class)
+public <span class="hljs-variable">@interface</span> EnableWebMvc &#123;
+&#125;</code></pre>
 <p>所以把@EnableWebMvc替换成@Import(WebMvcAutoConfiguration.EnableWebMvcConfiguration.class)即可。或者重写DelegatingWebMvcConfiguration，覆盖createRequestMappingHandlerMapping方法也是可以的。</p>
 
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://heqiao2010.github.io/2019/06/17/%E4%B8%80%E6%AC%A1%E9%87%8D%E5%86%99RequestMappingHandlerMapping%E7%9A%84%E7%BB%8F%E5%8E%86/" data-id="ckglvp9l3001l6xww2my33v2c" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Spring/">Spring</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Spring/">Spring</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">VirtualBox虚拟机和宿主机实现网络互通配置</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/14/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9EIP/">
+                        <span class="hidden-mobile">如何获取用户真实IP</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
 
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          VirtualBox虚拟机和宿主机实现网络互通配置
-        
+            
+          </article>
+        </div>
       </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
     </a>
   
-  
-    <a href="/2019/06/14/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9EIP/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">如何获取用户真实IP</div>
-    </a>
-  
-</nav>
 
   
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Arthas/">Arthas</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Freemarker/">Freemarker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/">Java并发基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Swagger/">Swagger</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/logrotate/">logrotate</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/nginx/">nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/syslog/">syslog</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB/">杂七杂八</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Api%E7%AE%A1%E7%90%86/" rel="tag">Api管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arthas/" rel="tag">Arthas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Freemarker/" rel="tag">Freemarker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/VirtualBox/" rel="tag">VirtualBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" rel="tag">代码统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%82%E8%B0%88/" rel="tag">杂谈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/Api%E7%AE%A1%E7%90%86/" style="font-size: 10px;">Api管理</a> <a href="/tags/Arthas/" style="font-size: 10px;">Arthas</a> <a href="/tags/Freemarker/" style="font-size: 12.5px;">Freemarker</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MySql/" style="font-size: 10px;">MySql</a> <a href="/tags/Spring/" style="font-size: 15px;">Spring</a> <a href="/tags/VirtualBox/" style="font-size: 10px;">VirtualBox</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">代码统计</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" style="font-size: 17.5px;">服务端</a> <a href="/tags/%E6%9D%82%E8%B0%88/" style="font-size: 10px;">杂谈</a> <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" style="font-size: 15px;">面试题</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/06/30/Spring_Security%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%9A%84%E8%BF%87%E6%BB%A4%E6%8E%89%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82/">Spring Security 如何优雅的过滤掉静态页面请求</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/17/%E5%BF%97%E5%BD%92%E6%A1%A3%E5%B7%A5%E5%85%B7logrotate%E4%BB%8B%E7%BB%8D/">日志归档工具logrotate介绍</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/26/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CJson%E8%BD%AC%E5%8C%96/">Freemarker中如何进行Json转化</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/08/ControllerAdvice%E6%B3%A8%E8%A7%A3/">ControllerAdvice注解</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/02/Spring%E5%AD%A6%E4%B9%A0%E4%B9%8BProfile%E5%92%8CLookup%E6%B3%A8%E8%A7%A3/">Spring学习之Profile和Lookup注解</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 heqiao2010<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
   </div>
+</div>
+  
+
+  
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
 </footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
 
 
   
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
 
   
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-<script src="/js/script.js"></script>
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '#post-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "记一次重写RequestMappingHandlerMapping的经历&nbsp;",
+      ],
+      cursorChar: "$",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
 
 
 
 
-  </div>
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?6148dc6aa44f407ec58f53a88f136657";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
 </body>
 </html>
