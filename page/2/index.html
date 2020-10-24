@@ -190,6 +190,54 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/">Freemarker中如何避免xss漏洞</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/">
+          
+          
+            
+          
+          什么是XSS漏洞试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2019-06-20 18:00" pubdate>
+              2019-06-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Freemarker/">Freemarker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Freemarker/">Freemarker</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2019/06/19/VirtualBox%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BA%92%E9%80%9A%E9%85%8D%E7%BD%AE/">VirtualBox虚拟机和宿主机实现网络互通配置</a>
       </h1>
 
@@ -647,60 +695,6 @@ public static boolean isRunningInJar() &#123;
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Java/">Java</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2018/07/14/%E5%9F%BA%E4%BA%8ENgxtop%E7%9A%84QPS%E7%9B%91%E6%8E%A7/">基于Ngxtop的QPS监控</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/2018/07/14/%E5%9F%BA%E4%BA%8ENgxtop%E7%9A%84QPS%E7%9B%91%E6%8E%A7/">
-          
-          
-            
-          
-          
-
-之前参与一个公有云项目的开发，系统入口是公有云平台提供的LB。云平台的LB再将请求转发到后方的多台Nginx，Nginx上再做反向代理到后方的服务器。为了获取系统的QPS，我们在Nginx服务器上写了个定时任务脚本，定期采集并发量，然后汇总。
-
-并发量采集脚本
-先安装ngxtop依次运行：sudo yum -y install epel-release
-sudo yum -y install 
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2018-07-14 18:00" pubdate>
-              2018-07-14
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/nginx/">nginx</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/">服务端</a>
             
           </div>
         

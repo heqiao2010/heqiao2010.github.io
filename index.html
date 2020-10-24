@@ -190,6 +190,57 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2020/10/24/redis%E4%B8%AD%E7%9A%84%E4%B8%89%E7%A7%8D%E4%B8%8D%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B9%8Bhyperloglog/">redis中的三种不常见数据类型之hyperloglog</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/10/24/redis%E4%B8%AD%E7%9A%84%E4%B8%89%E7%A7%8D%E4%B8%8D%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B9%8Bhyperloglog/">
+          
+          
+            
+          
+          
+上次介绍了bitmap和bloomfilter，这次介绍一个在大数据领域比较常见的数据类型或者说一种算法——hyperLogLog。
+
+HyperLogLog介绍redis中的HyperLogLog是一个基数计数器，在2.8.9及以上版本中提供。所谓基数（Distinct Value，简称DV）是指一个集合当中不相同元素的个数，而HyperLogLog就是这样一个计数器，能够用极小空间，来统计集
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-10-24 09:39" pubdate>
+              2020-10-24
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/redis/">redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/hyperloglog/">hyperloglog</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2020/10/23/redis%E4%B8%89%E7%A7%8D%E4%B8%8D%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B9%8Bbitmap/">redis中的三种不常见数据类型之bitmap</a>
       </h1>
 
@@ -627,54 +678,6 @@ Semaphore原意是指信号量,从API的注释:”Semaphores are often used to r
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Maven/">Maven</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/">Freemarker中如何避免xss漏洞</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/2019/06/20/Freemarker%E4%B8%AD%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dxss%E6%BC%8F%E6%B4%9E/">
-          
-          
-            
-          
-          什么是XSS漏洞试想一下，如果我们开发一个订单系统，订单名称如果没有做限制，允许用户输入任意字符，那么就有产生XSS的危险。攻击者可以很容易编写一个恶意JS脚本,然后将当前登录用户的cookie或者其他敏感信息抓取到，发送给攻击者自己，这就是XSS（跨站脚本）攻击。如何解决这个问题，首先我们想到的是在用户输入订单的时候，我们对订单名称做限制，不允许输入特殊字符。这样是可以避免的，不过对于一个大的系
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2019-06-20 18:00" pubdate>
-              2019-06-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Freemarker/">Freemarker</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Freemarker/">Freemarker</a>
             
           </div>
         
