@@ -1,0 +1,660 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.ico">
+  <link rel="icon" type="image/png" href="/img/favicon.ico">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="blog of heqiao2010">
+  <meta name="author" content="heqiao2010">
+  <meta name="keywords" content="java,go">
+  <title>redis中的三种不常见数据类型之geo - heqiao2010</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="heqiao2010" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>heqiao2010</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container page-header text-center fade-in-up">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-10-24 23:02" pubdate>
+        2020年10月24日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      18
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" id="post">
+            <!-- SEO header -->
+            <h1 style="display: none">redis中的三种不常见数据类型之geo</h1>
+            
+            <div class="markdown-body" id="post-body">
+              <blockquote>
+<p>这次介绍一个在地理定位系统中使用的比较多的一种数据类型——geo。geo是geography的缩写，说明和地理位置有关，geohash可以认为是一种特殊的编码格式。</p>
+</blockquote>
+<h1 id="geo"><a href="#geo" class="headerlink" title="geo"></a>geo</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>geo是redis在3.2.0及以上版本，中的一个特殊的集合，提供存储经纬度，计算距离范围等功能。和bitmap，hyperloglog不同的是，geo在redis中存储的类型是zset。也就是说除了支持geo相关的api之外，完全兼容zset的所有api。</p>
+<h3 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h3><p>该指令用于添加地理位置信息，往某个集合中添加地理位置坐标——<code>geoadd 集合名称 经度 纬度 地理位置名称</code>。</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; geoadd mygeo <span class="hljs-number">116.4</span> <span class="hljs-number">39.92</span> beijing
+(<span class="hljs-built_in">int</span>eger) <span class="hljs-number">1</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
+
+<h3 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h3><p>用于获取集合中某个坐标具体的经纬度——<code>geopos 集合名称 地理位置名称</code>。</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; geopos mygeo beijing
+<span class="hljs-number">1</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;116.39999896287918091&quot;</span>
+   <span class="hljs-number">2</span>) <span class="hljs-string">&quot;39.9199990416181052&quot;</span></code></pre>
+
+<h3 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h3><p>用于计算同一个集合当中，两个坐标之间的距离，支持m，km，ft等单位——<code>geodist 集合名称 地理位置名称1 地理位置名称2 </code>。</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; geoadd mygeo <span class="hljs-number">114.0</span> <span class="hljs-number">30.58</span> wuhan
+(<span class="hljs-built_in">int</span>eger) <span class="hljs-number">1</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; geodist mygeo beijing wuhan km
+<span class="hljs-string">&quot;1061.3546&quot;</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
+
+<h3 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h3><p>用于获取集合中，某个半径范围内的坐标信息，可以获取坐标值，也可以获取坐标对应的距离等。</p>
+<pre><code class="hljs apache"><span class="hljs-attribute">127</span>.<span class="hljs-number">0</span>.<span class="hljs-number">0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">6379</span>&gt; georadius mygeo <span class="hljs-number">114</span>.<span class="hljs-number">0</span> <span class="hljs-number">30</span>.<span class="hljs-number">58</span> <span class="hljs-number">1070</span> km WITHCOORD WITHDIST
+<span class="hljs-attribute">1</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;wuhan&quot;</span>
+   <span class="hljs-attribute">2</span>) <span class="hljs-string">&quot;0.0001&quot;</span>
+   <span class="hljs-attribute">3</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;114.00000125169754028&quot;</span>
+      <span class="hljs-attribute">2</span>) <span class="hljs-string">&quot;30.58000021509926825&quot;</span>
+<span class="hljs-attribute">2</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;beijing&quot;</span>
+   <span class="hljs-attribute">2</span>) <span class="hljs-string">&quot;1061.3546&quot;</span>
+   <span class="hljs-attribute">3</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;116.39999896287918091&quot;</span>
+      <span class="hljs-attribute">2</span>) <span class="hljs-string">&quot;39.9199990416181052&quot;</span>
+<span class="hljs-attribute">127</span>.<span class="hljs-number">0</span>.<span class="hljs-number">0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
+
+<h3 id="georadiusbymember"><a href="#georadiusbymember" class="headerlink" title="georadiusbymember"></a>georadiusbymember</h3><p>和georadius命令功能相同，只是指定中心点换成了坐标名称。</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; geoadd mygeo <span class="hljs-number">117.30</span> <span class="hljs-number">39.71</span> tianjing
+(<span class="hljs-built_in">int</span>eger) <span class="hljs-number">1</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; georadiusbymember mygeo wuhan <span class="hljs-number">1070</span> km WITHCOORD WITHDIST
+<span class="hljs-number">1</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;wuhan&quot;</span>
+   <span class="hljs-number">2</span>) <span class="hljs-string">&quot;0.0000&quot;</span>
+   <span class="hljs-number">3</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;114.00000125169754028&quot;</span>
+      <span class="hljs-number">2</span>) <span class="hljs-string">&quot;30.58000021509926825&quot;</span>
+<span class="hljs-number">2</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;tianjing&quot;</span>
+   <span class="hljs-number">2</span>) <span class="hljs-string">&quot;1058.6922&quot;</span>
+   <span class="hljs-number">3</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;117.29999810457229614&quot;</span>
+      <span class="hljs-number">2</span>) <span class="hljs-string">&quot;39.70999992828803471&quot;</span>
+<span class="hljs-number">3</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;beijing&quot;</span>
+   <span class="hljs-number">2</span>) <span class="hljs-string">&quot;1061.3546&quot;</span>
+   <span class="hljs-number">3</span>) <span class="hljs-number">1</span>) <span class="hljs-string">&quot;116.39999896287918091&quot;</span>
+      <span class="hljs-number">2</span>) <span class="hljs-string">&quot;39.9199990416181052&quot;</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
+
+<p>值得注意的是，这里并没有提供geodel，因为本质上它是一个zset，所以是支持所有zset指令的，可以通过zrem来进行删除。</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; zrem mygeo tianjing
+(<span class="hljs-built_in">int</span>eger) <span class="hljs-number">1</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; zrange mygeo <span class="hljs-number">0</span> <span class="hljs-number">10</span> WITHSCORES
+<span class="hljs-number">1</span>) <span class="hljs-string">&quot;wuhan&quot;</span>
+<span class="hljs-number">2</span>) <span class="hljs-string">&quot;4052113222296933&quot;</span>
+<span class="hljs-number">3</span>) <span class="hljs-string">&quot;beijing&quot;</span>
+<span class="hljs-number">4</span>) <span class="hljs-string">&quot;4069885561465124&quot;</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
+
+<h2 id="geohash编码"><a href="#geohash编码" class="headerlink" title="geohash编码"></a>geohash编码</h2><p>Geohash本质上是空间索引的一种方式，其基本原理是将地球理解为一个二维平面，将平面递归分解成更小的子块，每个子块在一定经纬度范围内拥有相同的编码。以GeoHash方式建立空间索引，可以提高对空间数据进行经纬度检索的效率。首先是将世界地图划分为了32等分，每一等分分配一个编码，然后每一等分又继续分为32等分，按照同样的方式进行编码，依次递归。</p>
+<img src="/images/17.png" srcset="/img/loading.gif" alt="geohash" style="zoom:80%;" />
+
+<p>这样递归了n次之后，就会得到一个长度为n的字符串，比如北京的位置，大概为：wx4g0e；如果还要更加精确的值，则获取更长的编码即可。那么通过这种方式简化了之后，对地理位置的查询，就由二维坐标的查询，变成了一维字符串的查询。性能较高，而且节省了存储空间，并且在某些场景下还可以达到保护隐私的效果——方便的提供大概位置。</p>
+<h4 id="编码过程"><a href="#编码过程" class="headerlink" title="编码过程"></a>编码过程</h4><p>那么具体是怎么编码的呢，以经纬度值：（116.389550， 39.928167）为例进行说明：</p>
+<ol>
+<li><p>区间[-90,90]进行二分为[-90,0),[0,90]，称为左右区间，可以确定39.928167属于右区间[0,90]，给标记为1；</p>
+</li>
+<li><p>接着将区间[0,90]进行二分为 [0,45),[45,90]，可以确定39.928167属于左区间 [0,45)，给标记为0；</p>
+</li>
+<li><p>递归上述过程39.928167总是属于某个区间[a,b]。随着每次迭代区间[a,b]总在缩小，并越来越逼近39.928167；</p>
+</li>
+<li><p>如果给定的纬度x（39.928167）属于左区间，则记录0，如果属于右区间则记录1，序列的长度跟给定的区间划分次数有关；<img src="/images/18.png" srcset="/img/loading.gif" alt="编码过程"></p>
+</li>
+<li><p>同理，地球经度区间是[-180,180]，可以对经度116.389550进行编码</p>
+</li>
+<li><p>通过上述计算，纬度产生的编码为1 1 0 1 0 0 1 0 1 1 0 0 0 1 0</p>
+<p>经度产生的编码为1 0 1 1 1 0 0 0 1 1 0 0 0 1 1</p>
+</li>
+<li><p>合并：偶数位放经度，奇数位放纬度，把2串编码组合生成新串：<img src="/images/19.png" srcset="/img/loading.gif" alt="合并结果"></p>
+</li>
+<li><p>然后将11100 11101 00100 01111 0000  01101转成十进制，对应着28、29、4、15，0，13 十进制对应的base32编码就是wx4g0e,如下图：</p>
+<p><img src="/images/20.png" srcset="/img/loading.gif" alt="编码"></p>
+</li>
+</ol>
+<p>当geohash base32编码长度为8时，精度在19米左右，而当编码长度为9时，精度在2米左右。</p>
+<img src="/images/21.png" srcset="/img/loading.gif" alt="精度说明" style="zoom:80%;" />
+
+<h3 id="geohash编码的缺陷"><a href="#geohash编码的缺陷" class="headerlink" title="geohash编码的缺陷"></a>geohash编码的缺陷</h3><p>对大部分而言，编码相似的距离也相近，但geohash是通过Peano空间曲线填充的，这种曲线最大的缺点就是突变性，有些编码相邻但距离却相差很远，比如下左图中g与h，编码是相邻的，但距离相差很大。</p>
+<p>突变性的规避方法：<br>查询附近地点，除了使用定位点的GeoHash编码进行匹配外，还使用周围8个区域的GeoHash编码，这样可以避免这个问题。</p>
+<p><img src="/images/22.png" srcset="/img/loading.gif" alt="peano"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="http://geohash.org/wx4g0e">http://geohash.org/wx4g0e</a></p>
+<p><a target="_blank" rel="noopener" href="http://geohash.gofreerange.com/">http://geohash.gofreerange.com</a></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Geohash">https://en.wikipedia.org/wiki/Geohash</a></p>
+<p><a target="_blank" rel="noopener" href="http://geohash.org/">http://geohash.org/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LBSer/p/3298057.html">https://www.cnblogs.com/LBSer/p/3298057.html</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/redis/">redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/geohash/">geohash</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/10/24/redis%E4%B8%AD%E7%9A%84%E4%B8%89%E7%A7%8D%E4%B8%8D%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B9%8Bhyperloglog/">
+                        <span class="hidden-mobile">redis中的三种不常见数据类型之hyperloglog</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'heqiao2010/heqiao2010.github.io');
+      s.setAttribute('issue-term', 'url');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    }
+    waitElementVisible('comments', loadUtterances)
+  </script>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://heqiao2010.github.io" target="_blank" rel="nofollow noopener"><span>heqiao2010</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '#post-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "redis中的三种不常见数据类型之geo&nbsp;",
+      ],
+      cursorChar: "$",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?6148dc6aa44f407ec58f53a88f136657";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

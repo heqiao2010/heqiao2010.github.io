@@ -190,7 +190,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.1k 字
+      2.3k 字
     </span>
   
 
@@ -200,7 +200,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      25
+      28
        分钟
     </span>
   
@@ -273,8 +273,25 @@ OK
 (<span class="hljs-built_in">int</span>eger) <span class="hljs-number">7</span>
 <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
 
-<h4 id="内存消耗"><a href="#内存消耗" class="headerlink" title="内存消耗"></a>内存消耗</h4><p>之前介绍过hyperloglog通过极小的内存就能计算非常大集合的基数。我们可以用之前计算DAU的场景来模拟一下，假如用hyperloglog来存储活跃用户的ID，看看占用多大空间。</p>
-<pre><code class="hljs plain"></code></pre>
+<h4 id="内存消耗"><a href="#内存消耗" class="headerlink" title="内存消耗"></a>内存消耗</h4><p>之前介绍过hyperloglog通过极小的内存就能计算非常大集合的基数。我们可以用之前计算DAU的场景来模拟一下，假如用hyperloglog来存储活跃用户的ID，看看占用多大空间。用如下脚本来创建5千万个字符串id，看看最终的value有多长。</p>
+<pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span>
+
+elements=&quot;&quot;
+key=&quot;test_hyperloglog&quot;
+for((i=1;i&lt;=50000000;i++)); 
+do
+        elements=&quot;$&#123;key&#125;_uuid_&quot;$&#123;i&#125;
+        ./redis-cli pfadd $&#123;key&#125; $&#123;elements&#125;
+        echo &quot;add $&#123;elements&#125;&quot;
+done
+echo &quot;done.&quot;</code></pre>
+
+<p>该脚本执行完比较耗时，（我这里没有执行完）在往redis中添加了14102763个字符串id后，最终的value字符串长度只有：12304,相当于12KB，可见hyperLogLog是很节省空间的。此外从pfcount得出的估计值：14261991，和实际值是有误差的，将近大了1.12%。</p>
+<pre><code class="hljs angelscript"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; strlen test_hyperloglog
+(<span class="hljs-built_in">int</span>eger) <span class="hljs-number">12304</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt; pfcount test_hyperloglog
+(<span class="hljs-built_in">int</span>eger) <span class="hljs-number">14261991</span>
+<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
 
 <h2 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h2><p>在介绍hyperloglog算法之前，可以先从生活中常见的一个例子讲起。如果有这样一个问题：假设某人抛了很多次硬币，并告诉我们在这次抛硬币的过程中最多只有两次扔出连续的反面，让我们猜总共抛了多少次硬币？</p>
 <p><img src="/images/9.jpg" srcset="/img/loading.gif" alt="抛硬币"></p>
@@ -378,6 +395,7 @@ logfile.<span class="hljs-keyword">close</span></code></pre>
 
 <p>测试结果：</p>
 <p><img src="/images/16.png" srcset="/img/loading.gif" alt="实验结果"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>hyperLogLog是一个利用概率统计来估算某个集合数据量的算法，有支持的数据量大，性能高，占用内存小的特点，由于是一个估算算法，所以没法得到精确值。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="http://content.research.neustar.biz/blog/hll.html">http://content.research.neustar.biz/blog/hll.html</a></p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/36306868">https://zhuanlan.zhihu.com/p/36306868</a></p>
 
@@ -409,6 +427,12 @@ logfile.<span class="hljs-keyword">close</span></code></pre>
                 <div class="post-prevnext row">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2020/10/24/redis%E4%B8%AD%E7%9A%84%E4%B8%89%E7%A7%8D%E4%B8%8D%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B9%8Bgeohash/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">redis中的三种不常见数据类型之geo</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

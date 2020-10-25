@@ -190,7 +190,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.8k 字
+      3k 字
     </span>
   
 
@@ -200,7 +200,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      36
+      37
        分钟
     </span>
   
@@ -465,6 +465,7 @@ print(<span class="hljs-string">&quot;false positive[error count:&quot;</span> +
 false positive<span class="hljs-built_in">[error</span><span class="hljs-built_in"> count</span>:<span class="hljs-number">256</span><span class="hljs-built_in"> error</span> rate: <span class="hljs-number">0</span>.<span class="hljs-number">03</span>]</code></pre>
 
 <p>实际计算假阳性概率约为0.03。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>redis中的bitmap提供了一些直接操作字符串bit位的api，这类api能够很方便的在实际开发中解决很多问题。而redisbloom这个模块，使得redis真正支持布隆过滤器，以及支持删除的cuckoo filter。这类功能，在某些领域具有很大应用价值；在使用布隆过滤器的场景中，一定要考虑假阳性概率的情况，看看业务上是否能够容忍假阳性事件的出现。</p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="http://pages.cs.wisc.edu/~cao/papers/summary-cache/node8.html">http://pages.cs.wisc.edu/~cao/papers/summary-cache/node8.html</a></p>
 <p><a target="_blank" rel="noopener" href="http://sigmodrecord.org/publications/sigmodRecord/0603/p26-article-pey.pdf">http://sigmodrecord.org/publications/sigmodRecord/0603/p26-article-pey.pdf</a></p>
 <p><a target="_blank" rel="noopener" href="https://redis.io/modules">https://redis.io/modules</a></p>
