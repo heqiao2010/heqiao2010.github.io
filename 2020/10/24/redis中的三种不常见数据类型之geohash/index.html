@@ -190,7 +190,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.4k 字
+      1.5k 字
     </span>
   
 
@@ -200,7 +200,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      18
+      19
        分钟
     </span>
   
@@ -294,7 +294,8 @@
 <span class="hljs-number">4</span>) <span class="hljs-string">&quot;4069885561465124&quot;</span>
 <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span>&gt;</code></pre>
 
-<h2 id="geohash编码"><a href="#geohash编码" class="headerlink" title="geohash编码"></a>geohash编码</h2><p>Geohash本质上是空间索引的一种方式，其基本原理是将地球理解为一个二维平面，将平面递归分解成更小的子块，每个子块在一定经纬度范围内拥有相同的编码。以GeoHash方式建立空间索引，可以提高对空间数据进行经纬度检索的效率。首先是将世界地图划分为了32等分，每一等分分配一个编码，然后每一等分又继续分为32等分，按照同样的方式进行编码，依次递归。</p>
+<h2 id="geohash编码"><a href="#geohash编码" class="headerlink" title="geohash编码"></a>geohash编码</h2><p>从上面zset的value可以看出，redis进行存储的时候，并不是直接存储的坐标值，而是将二维坐标做了编码。接下来看看这种geohash的编码是如何实现的。</p>
+<p>Geohash本质上是空间索引的一种方式，其基本原理是将地球理解为一个二维平面，将平面递归分解成更小的子块，每个子块在一定经纬度范围内拥有相同的编码。以GeoHash方式建立空间索引，可以提高对空间数据进行经纬度检索的效率。首先是将世界地图划分为了32等分，每一等分分配一个编码，然后每一等分又继续分为32等分，按照同样的方式进行编码，依次递归。</p>
 <img src="/images/17.png" srcset="/img/loading.gif" alt="geohash" style="zoom:80%;" />
 
 <p>这样递归了n次之后，就会得到一个长度为n的字符串，比如北京的位置，大概为：wx4g0e；如果还要更加精确的值，则获取更长的编码即可。那么通过这种方式简化了之后，对地理位置的查询，就由二维坐标的查询，变成了一维字符串的查询。性能较高，而且节省了存储空间，并且在某些场景下还可以达到保护隐私的效果——方便的提供大概位置。</p>
@@ -325,6 +326,7 @@
 <h3 id="geohash编码的缺陷"><a href="#geohash编码的缺陷" class="headerlink" title="geohash编码的缺陷"></a>geohash编码的缺陷</h3><p>对大部分而言，编码相似的距离也相近，但geohash是通过Peano空间曲线填充的，这种曲线最大的缺点就是突变性，有些编码相邻但距离却相差很远，比如下左图中g与h，编码是相邻的，但距离相差很大。</p>
 <p>突变性的规避方法：<br>查询附近地点，除了使用定位点的GeoHash编码进行匹配外，还使用周围8个区域的GeoHash编码，这样可以避免这个问题。</p>
 <p><img src="/images/22.png" srcset="/img/loading.gif" alt="peano"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>redis中的geo特别适合微信中摇一摇，外卖骑手位置定位等，涉及热点定位数据的场景。</p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="http://geohash.org/wx4g0e">http://geohash.org/wx4g0e</a></p>
 <p><a target="_blank" rel="noopener" href="http://geohash.gofreerange.com/">http://geohash.gofreerange.com</a></p>
 <p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Geohash">https://en.wikipedia.org/wiki/Geohash</a></p>
