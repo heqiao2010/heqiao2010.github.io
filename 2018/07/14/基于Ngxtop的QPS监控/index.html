@@ -233,8 +233,7 @@
             <h1 style="display: none">基于Ngxtop的QPS监控</h1>
             
             <div class="markdown-body" id="post-body">
-              <p><img src="https://img.hacpai.com/bing/20180309.jpg?imageView2/1/w/960/h/520/interlace/1/q/100" srcset="/img/loading.gif"></p>
-<blockquote>
+              <blockquote>
 <p>之前参与一个公有云项目的开发，系统入口是公有云平台提供的LB。云平台的LB再将请求转发到后方的多台Nginx，Nginx上再做反向代理到后方的服务器。为了获取系统的QPS，我们在Nginx服务器上写了个定时任务脚本，定期采集并发量，然后汇总。</p>
 </blockquote>
 <h3 id="并发量采集脚本"><a href="#并发量采集脚本" class="headerlink" title="并发量采集脚本"></a>并发量采集脚本</h3><ol>
@@ -358,8 +357,8 @@ env.hosts=CommonUtil.get_value_list(<span class="hljs-string">&#x27;ngxtop&#x27;
 <span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:
     os.system(<span class="hljs-string">&#x27;fab -f NgxtopCollector.py save_to_database&#x27;</span>)</code></pre>
 <p>那么这个python脚本，通过crontab每5min触发一次，就能得到相应的qps数据了。</p>
-<h3 id="数据展示"><a href="#数据展示" class="headerlink" title="数据展示"></a>数据展示</h3><p>用E-charts做了个表格，这样几个系统的qps值就可以采集到了。其实通过这个可以做一个简单的告警，比如当qps值到达4000时，发送一个告警邮件，或者告警微信消息。<br><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/qps.png" srcset="/img/loading.gif" alt="qps" title="qps"></p>
-<p><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/qps2.png" srcset="/img/loading.gif" alt="qps" title="qps"></p>
+<h3 id="数据展示"><a href="#数据展示" class="headerlink" title="数据展示"></a>数据展示</h3><p>用E-charts做了个表格，这样几个系统的qps值就可以采集到了。其实通过这个可以做一个简单的告警，比如当qps值到达4000时，发送一个告警邮件，或者告警微信消息。<br><img src="/images/25.png" srcset="/img/loading.gif" alt="qps"></p>
+<p><img src="/images/26.png" srcset="/img/loading.gif" alt="qps"></p>
 <p>感谢<a target="_blank" rel="noopener" href="http://yxs1112003.github.io/">YXS</a>编码实现。</p>
 
             </div>

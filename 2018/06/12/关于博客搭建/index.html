@@ -233,8 +233,7 @@
             <h1 style="display: none">Solo博客搭建</h1>
             
             <div class="markdown-body" id="post-body">
-              <p><img src="https://img.hacpai.com/bing/20180329.jpg?imageView2/1/w/960/h/520/interlace/1/q/10" srcset="/img/loading.gif"> </p>
-<blockquote>
+              <blockquote>
 <p>用Github Pages可以搭静态博客，可以写点东西，不过不能有人评论，毕竟是静态页面。今天突然想到去年在Godaddy买了个域名一直没有用，今天就索性在搬瓦工买了个linux虚机搭个动态博客试试。</p>
 </blockquote>
 <h2 id="虚机软件安装"><a href="#虚机软件安装" class="headerlink" title="虚机软件安装"></a>虚机软件安装</h2><p>购买虚机就不用说了，190块/年，买了个最低配的linux虚机，安装了ubuntu12.4系统，动态博客是基于solo搭建的，由于solo是用java开发的，所以先要安装jdk。solo跑起来了之后，发现一个很奇特的现象——80端口不通，但是8080端口是好使的，用netstat查看，没有80端口的TCP链接。latke.properties中的端口不是服务的监听端口，solo服务真正的监听端口是8080，而且没有找到在哪个里面配置的。</p>
@@ -262,7 +261,7 @@
         &#125;</code></pre>
 
 <h2 id="域名映射"><a href="#域名映射" class="headerlink" title="域名映射"></a>域名映射</h2><p>有个没有搞明白的问题是域名映射；在Godaddy上完全看不懂，配置完后，过了一会儿就可以了，估计有缓存。。。</p>
-<p><img src="https://raw.githubusercontent.com/heqiao2010/heqiao2010.github.io/master/img/dns.jpg" srcset="/img/loading.gif" alt="域名映射" title="dns"></p>
+<p><img src="/images/27.jpg" srcset="/img/loading.gif" alt="域名映射"></p>
 
             </div>
             <hr>

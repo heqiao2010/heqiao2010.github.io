@@ -233,8 +233,7 @@
             <h1 style="display: none">TCP链接数优化记录</h1>
             
             <div class="markdown-body" id="post-body">
-              <p><img src="https://img.hacpai.com/bing/20171207.jpg?imageView2/1/w/960/h/520/interlace/1/q/10" srcset="/img/loading.gif"> </p>
-<blockquote>
+              <blockquote>
 <p>之前在开发无线wifi认证系统的时候，遇到一次性能问题，表现就是前端3台nginx返回大量502和504，所有接口返回慢，包括html，css以及js等资源文件的响应也很慢。在后端服务器上，用<code>netstat</code>查看发现有大量数据阻塞在接收队列，服务器处理不过来，同时TCP链接数很多，不过后端服务器的CPU以及内存正常，所以之前怀疑是TCP链接数过多导致的，所以后续采取了一些方法来，减少后端服务器和前端nginx之间的链接数。</p>
 </blockquote>
 <h3 id="查看TCP链接"><a href="#查看TCP链接" class="headerlink" title="查看TCP链接"></a>查看TCP链接</h3><ol>

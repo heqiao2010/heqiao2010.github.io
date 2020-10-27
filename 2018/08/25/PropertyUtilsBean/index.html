@@ -233,8 +233,7 @@
             <h1 style="display: none">PropertyUtilsBean</h1>
             
             <div class="markdown-body" id="post-body">
-              <p><img src="https://img.hacpai.com/bing/20181129.jpg?imageView2/1/w/960/h/520/interlace/1/q/100" srcset="/img/loading.gif"> </p>
-<h3 id="beanutils包"><a href="#beanutils包" class="headerlink" title="beanutils包"></a>beanutils包</h3><p>beanutils，顾名思义，是java bean的一个工具类，可以帮助我们方便的读取(get)和设置(set)bean属性值、动态定义和访问bean属性；<br>细心的话，会发现其实JDK已经提供了一个java.beans包，同样可以实现以上功能，只不过使用起来比较麻烦，所以诞生了apache commons beanutils；<br>看源码就知道，其实apache commons beanutils就是基于jdk的java.beans包实现的。</p>
+              <h3 id="beanutils包"><a href="#beanutils包" class="headerlink" title="beanutils包"></a>beanutils包</h3><p>beanutils，顾名思义，是java bean的一个工具类，可以帮助我们方便的读取(get)和设置(set)bean属性值、动态定义和访问bean属性；<br>细心的话，会发现其实JDK已经提供了一个java.beans包，同样可以实现以上功能，只不过使用起来比较麻烦，所以诞生了apache commons beanutils；<br>看源码就知道，其实apache commons beanutils就是基于jdk的java.beans包实现的。</p>
 <h3 id="AopCacheUtil"><a href="#AopCacheUtil" class="headerlink" title="AopCacheUtil"></a><a target="_blank" rel="noopener" href="https://github.com/heqiao2010/AopCacheUtil">AopCacheUtil</a></h3><p>之前在工作中，写了一个简单的自定义注解，后来自己凭印象写了个AopCacheUtil（还不完整），便于拦截DAO或者Controller层的方法调用，做缓存处理；当中就用到了PropertyUtilsBean，这个类。<br>在解析Bean属性的时候，挺方便的。</p>
 <pre><code class="hljs css"><span class="hljs-selector-tag">org</span><span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.commons</span><span class="hljs-selector-class">.beanutils</span><span class="hljs-selector-class">.PropertyUtilsBean</span><span class="hljs-selector-class">.getProperty</span>(<span class="hljs-selector-tag">Object</span>, <span class="hljs-selector-tag">String</span>)</code></pre>
 

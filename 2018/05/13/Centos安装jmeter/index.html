@@ -190,7 +190,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      362 字
+      364 字
     </span>
   
 
@@ -239,31 +239,45 @@
 <p>#如何在CentOS中安装Jmeter</p>
 <ol>
 <li><p>Install JRE</p>
-<p> <code>yum install java</code></p>
+<pre><code class="hljs sql">yum <span class="hljs-keyword">install</span> <span class="hljs-keyword">java</span></code></pre>
 </li>
 <li><p>下载jmeter</p>
-<p> <code>wget http://mirrors.hust.edu.cn/apache//jmeter/binaries/apache-jmeter-4.0.tgz</code><br> <code>tar zxf apache-jmeter-4.0.tgz</code></p>
+<pre><code class="hljs awk">wget http:<span class="hljs-regexp">//mi</span>rrors.hust.edu.cn<span class="hljs-regexp">/apache/</span><span class="hljs-regexp">/jmeter/</span>binaries/apache-jmeter-<span class="hljs-number">4.0</span>.tgz
+tar zxf apache-jmeter-<span class="hljs-number">4.0</span>.tgz</code></pre>
 </li>
 <li><p>拷贝到系统目录</p>
-<p> <code>mv apache-jmeter-4.0 /usr/local/</code></p>
+<pre><code class="hljs apache"><span class="hljs-attribute">mv</span> apache-jmeter-<span class="hljs-number">4</span>.<span class="hljs-number">0</span> /usr/local/</code></pre>
 </li>
 <li><p>修改profile</p>
-<p> <code>vim /etc/profile</code></p>
-<p> 然后追加：</p>
-<p> <code>#/usr/local/apache-jmeter-4.0</code><br> <code>export JMETER=/usr/local/apache-jmeter-4.0/</code><br> <code>export CLASSPATH=$JMETER/lib/ext/ApacheJMeter_core.jar:$JMETER/lib/jorphan.jar:$JMETER/lib/logkit-2.0.jar:$CLASSPATH</code><br> <code>export PATH=$JMETER/bin/:$PATH</code></p>
-<p> 然后source生效<br> <code>source /etc/profile</code></p>
+<pre><code class="hljs awk">vim <span class="hljs-regexp">/etc/</span>profile</code></pre>
+
+<p>然后追加：</p>
+<pre><code class="hljs awk"><span class="hljs-comment">#/usr/local/apache-jmeter-4.0</span>
+export JMETER=<span class="hljs-regexp">/usr/</span>local<span class="hljs-regexp">/apache-jmeter-4.0/</span>
+export CLASSPATH=<span class="hljs-variable">$JMETER</span><span class="hljs-regexp">/lib/</span>ext<span class="hljs-regexp">/ApacheJMeter_core.jar:$JMETER/</span>lib<span class="hljs-regexp">/jorphan.jar:$JMETER/</span>lib/logkit-<span class="hljs-number">2.0</span>.jar:<span class="hljs-variable">$CLASSPATH</span>
+export PATH=<span class="hljs-variable">$JMETER</span><span class="hljs-regexp">/bin/</span>:<span class="hljs-variable">$PATH</span></code></pre>
+
+<p>然后source生效</p>
+<pre><code class="hljs gradle"><span class="hljs-keyword">source</span> <span class="hljs-regexp">/etc/</span>profile</code></pre>
 </li>
 <li><p>验证</p>
 </li>
 </ol>
-<p><code>[?]# jmeter -v</code><br><code>May 12, 2018 9:44:30 AM java.util.prefs.FileSystemPreferences$1 run</code></p>
-<p><code>INFO: Created user preferences directory.</code><br><code>_ ____ _ ____ _ _ _____ _ __ __ _____ _____ _____ ____</code><br><code>/ \ | _ \ / \ / ___| | | | ____| | | \/ | ____|_ _| ____| _ \</code><br><code>/ _ \ | |_) / _ \| | | |_| | _| _ | | |\/| | _| | | | _| | |_) |</code><br><code>/ ___ \| __/ ___ \ |___| _ | |___ | |_| | | | | |___ | | | |___| _ &lt;</code><br><code>/_/ \_\_| /_/ \_\____|_| |_|_____| \___/|_| |_|_____| |_| |_____|_| \_\ 4.0 r1823414</code><br><code>Copyright (c) 1999-2018 The Apache Software Foundation</code></p>
-<ol>
-<li><p>如何基于命令行运行</p>
-<p> <code>jmeter -n -t test1.jmx -l result.log 2&gt;/dev/null</code></p>
-</li>
-</ol>
+<pre><code class="hljs gherkin">[?]<span class="hljs-comment"># jmeter -v</span>
+May 12, 2018 9:44:30 AM java.util.prefs.FileSystemPreferences$1 run
 
+INFO: Created user preferences directory.
+_ ____ _ ____ _ _ _____ _ __ __ _____ _____ _____ ____
+/ \ |<span class="hljs-string"> _ \ / \ / ___</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> ____</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> \/ </span>|<span class="hljs-string"> ____</span>|<span class="hljs-string">_ _</span>|<span class="hljs-string"> ____</span>|<span class="hljs-string"> _ \</span>
+<span class="hljs-string">/ _ \ </span>|<span class="hljs-string"> </span>|<span class="hljs-string">_) / _ \</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string">_</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> _</span>|<span class="hljs-string"> _ </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string">\/</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> _</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> _</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string">_) </span>|
+/ ___ \|<span class="hljs-string"> __/ ___ \ </span>|<span class="hljs-string">___</span>|<span class="hljs-string"> _ </span>|<span class="hljs-string"> </span>|<span class="hljs-string">___ </span>|<span class="hljs-string"> </span>|<span class="hljs-string">_</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string">___ </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string">___</span>|<span class="hljs-string"> _ &lt;</span>
+<span class="hljs-string">/_/ \_\_</span>|<span class="hljs-string"> /_/ \_\____</span>|<span class="hljs-string">_</span>|<span class="hljs-string"> </span>|<span class="hljs-string">_</span>|<span class="hljs-string">_____</span>|<span class="hljs-string"> \___/</span>|<span class="hljs-string">_</span>|<span class="hljs-string"> </span>|<span class="hljs-string">_</span>|<span class="hljs-string">_____</span>|<span class="hljs-string"> </span>|<span class="hljs-string">_</span>|<span class="hljs-string"> </span>|<span class="hljs-string">_____</span>|<span class="hljs-string">_</span>|<span class="hljs-string"> \_\ 4.0 r1823414</span>
+<span class="hljs-string">Copyright (c) 1999-2018 The Apache Software Foundation</span></code></pre>
+
+<ol start="6">
+<li>如何基于命令行运行</li>
+</ol>
+<pre><code class="hljs arcade">jmeter -n -t test1.jmx -l result.log <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span><span class="hljs-literal">null</span></code></pre>
             </div>
             <hr>
             <div>
