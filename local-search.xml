@@ -392,6 +392,31 @@
   
   
   <entry>
+    <title>Rsyslog限速问题</title>
+    <link href="/2019/06/11/Rsyslog%E9%99%90%E9%80%9F%E9%97%AE%E9%A2%98/"/>
+    <url>/2019/06/11/Rsyslog%E9%99%90%E9%80%9F%E9%97%AE%E9%A2%98/</url>
+    
+    <content type="html"><![CDATA[<p><strong>问题：</strong><br>今天遇到一个syslog间歇性缺失的问题，排查了一圈发现是限速导致的。</p><pre><code class="hljs excel">cat /<span class="hljs-built_in">var</span>/<span class="hljs-built_in">log</span>/message | grep <span class="hljs-built_in">rate</span>-limit</code></pre><p>有如下信息：</p><pre><code class="hljs angelscript">Feb  <span class="hljs-number">9</span> <span class="hljs-number">10</span>:<span class="hljs-number">22</span>:<span class="hljs-number">32</span> localhost rsyslogd: imuxsock lost <span class="hljs-number">432</span> messages <span class="hljs-keyword">from</span> pid <span class="hljs-number">9832</span> due to rate-limiting</code></pre><p><strong>解决：</strong></p><p>1.修改配置文件<br>对于centos6，修改/etc/rsyslog.conf新增</p><pre><code class="hljs gams"><span class="hljs-meta"><span class="hljs-meta-keyword">$SystemLogRateLimitInterval</span> 0</span><span class="hljs-meta"><span class="hljs-meta-keyword">$SystemLogRateLimitBurst</span> 0</span><span class="hljs-meta"><span class="hljs-meta-keyword">$IMUxSockRateLimitBurst</span> 0</span><span class="hljs-meta"><span class="hljs-meta-keyword">$IMUXSockRateLimitInterval</span> 0</span><span class="hljs-meta"><span class="hljs-meta-keyword">$IMUxSockRateLimitSeverity</span> 7 </span></code></pre><p>对于centos7，修改/etc/rsyslog.conf新增</p><pre><code class="hljs gams"><span class="hljs-meta"><span class="hljs-meta-keyword">$SystemLogRateLimitInterval</span> 0</span><span class="hljs-meta"><span class="hljs-meta-keyword">$SystemLogRateLimitBurst</span>    0</span># 在<span class="hljs-symbol">$</span>ModLoad imjournal之后新增<span class="hljs-meta"><span class="hljs-meta-keyword">$ImjournalRateLimitInterval</span> 0</span></code></pre><p>修改：/etc/systemd/journald.conf<br>注释掉：</p><pre><code class="hljs ini"><span class="hljs-attr">RateLimitInterval</span>=<span class="hljs-number">5</span>s<span class="hljs-attr">RateLimitBurst</span>=<span class="hljs-number">30000</span></code></pre><p>2.重启服务</p><pre><code class="hljs maxima">systemctl <span class="hljs-built_in">restart</span> systemd-journaldsystemctl <span class="hljs-built_in">restart</span> rsyslog</code></pre><p><strong>参考资料</strong><br><a href="https://www.thegeekdiary.com/imuxsock-lost-messages-from-pid-due-to-rate-limiting-rsyslog-rate-limiting-in-linux/">https://www.thegeekdiary.com/imuxsock-lost-messages-from-pid-due-to-rate-limiting-rsyslog-rate-limiting-in-linux/</a><br><a href="https://www.rsyslog.com/how-to-use-rate-limiting-in-rsyslog/">https://www.rsyslog.com/how-to-use-rate-limiting-in-rsyslog/</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>syslog</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>限速</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Syslog基础</title>
     <link href="/2019/06/10/Syslog%E5%9F%BA%E7%A1%80/"/>
     <url>/2019/06/10/Syslog%E5%9F%BA%E7%A1%80/</url>
