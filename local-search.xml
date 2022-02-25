@@ -642,31 +642,6 @@
   
   
   <entry>
-    <title>Shell 实现的几个Http交互的方法</title>
-    <link href="/2018/06/14/Shell%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%87%A0%E4%B8%AAHttp%E4%BA%A4%E4%BA%92%E7%9A%84%E6%96%B9%E6%B3%95/"/>
-    <url>/2018/06/14/Shell%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%87%A0%E4%B8%AAHttp%E4%BA%A4%E4%BA%92%E7%9A%84%E6%96%B9%E6%B3%95/</url>
-    
-    <content type="html"><![CDATA[<blockquote><p>由于测试需求，需要测试一些http接口是否正常，作为后端开发可以用脚本语言来实现比如python,shell之类的，这里分享一下，用shell如何实现。</p></blockquote><ul><li><p>URLencode方法<br>既然是http接口，必定会用到urlencode来将参数放入URL中。</p><pre><code class="hljs perl">url_encode()&#123;   echo  <span class="hljs-string">&quot;$1&quot;</span> | <span class="hljs-keyword">tr</span> -d  <span class="hljs-string">&#x27;\n&#x27;</span> | xxd -plain | sed <span class="hljs-string">&#x27;s/\(..\)/%\1/g&#x27;</span> | <span class="hljs-keyword">tr</span> -d  <span class="hljs-string">&#x27;\n&#x27;</span>    <span class="hljs-keyword">return</span>  <span class="hljs-number">0</span> &#125;</code></pre></li><li><p>URLdecode方法</p><pre><code class="hljs markdown">url<span class="hljs-emphasis">_decode()&#123;</span><span class="hljs-emphasis">        printf $(echo -n $t | sed &#x27;s/\\/\\\\/g;s/\(%\)\([<span class="hljs-string">0-9a-fA-F</span>][<span class="hljs-symbol">0-9a-fA-F</span>]\)/\\x\2/g&#x27;)</span><span class="hljs-emphasis">        return 0</span><span class="hljs-emphasis">&#125;</span></code></pre></li><li><p>解析JSON数据，从JSON对象中获取某个属性</p><pre><code class="hljs bash"><span class="hljs-function"><span class="hljs-title">parse_json</span></span>()&#123;    json=`<span class="hljs-built_in">echo</span> <span class="hljs-variable">$1</span> | sed <span class="hljs-string">&#x27;s/\&quot;//g&#x27;</span>`; <span class="hljs-comment">#remove quotation mark</span>    <span class="hljs-built_in">echo</span> <span class="hljs-variable">$json</span> | sed <span class="hljs-string">&#x27;s/.*&#x27;</span><span class="hljs-variable">$2</span><span class="hljs-string">&#x27;:\([^,&#125;]*\).*/\1/&#x27;</span>    <span class="hljs-built_in">return</span> 0&#125;</code></pre></li><li><p>解析URL参数，从URL中获取某个参数的值</p><pre><code class="hljs bash"><span class="hljs-function"><span class="hljs-title">parse_uri_paras</span></span>()&#123;    <span class="hljs-built_in">echo</span> <span class="hljs-variable">$1</span> | sed <span class="hljs-string">&#x27;s/.*&#x27;</span><span class="hljs-variable">$2</span><span class="hljs-string">&#x27;=\([[:alnum:]]*\).*/\1/&#x27;</span>    <span class="hljs-built_in">return</span> 0&#125;</code></pre></li><li><p>获取重定向地址</p><pre><code class="hljs coffeescript">request_redirect_url()&#123;    echo `<span class="javascript">curl -i <span class="hljs-string">&quot;$1&quot;</span> <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span><span class="hljs-literal">null</span>  | sed -n <span class="hljs-string">&#x27;s/^Location://p&#x27;</span></span>`    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>&#125;</code></pre></li><li><p>发送简单的GET请求</p><pre><code class="hljs awk">http_get()&#123;    get_data=`curl -X GET <span class="hljs-string">&quot;$1&quot;</span> <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span>null`    <span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$get_data&quot;</span> =  <span class="hljs-string">&quot;&quot;</span> ]; then <span class="hljs-comment">#出错了</span>            echo <span class="hljs-string">&quot;出错了，试试：curl -X GET \&quot;$1\&quot;&quot;</span>            <span class="hljs-keyword">exit</span> <span class="hljs-number">1</span>    <span class="hljs-keyword">else</span>         echo <span class="hljs-variable">$get_data</span>        return <span class="hljs-number">0</span>    fi&#125;</code></pre></li><li><p>发送简单的POST请求</p><pre><code class="hljs awk">http_post()&#123;    post_data=`curl -X POST -d <span class="hljs-string">&quot;$1&quot;</span> <span class="hljs-variable">$2</span> <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span>null`    <span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$post_data&quot;</span> =  <span class="hljs-string">&quot;&quot;</span> ]; then <span class="hljs-comment">#出错了</span>                echo <span class="hljs-string">&quot;出错了，试试：curl -X POST \&quot;$1\&quot; \&quot;$2\&quot;&quot;</span>                <span class="hljs-keyword">exit</span> <span class="hljs-number">1</span>        <span class="hljs-keyword">else</span>                echo <span class="hljs-variable">$post_data</span>                return <span class="hljs-number">0</span>        fi&#125;</code></pre></li></ul>]]></content>
-    
-    
-    <categories>
-      
-      <category>服务端</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>Java</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>几道逻辑思维题</title>
     <link href="/2018/06/14/%E5%87%A0%E9%81%93%E9%80%BB%E8%BE%91%E6%80%9D%E7%BB%B4%E9%A2%98/"/>
     <url>/2018/06/14/%E5%87%A0%E9%81%93%E9%80%BB%E8%BE%91%E6%80%9D%E7%BB%B4%E9%A2%98/</url>
@@ -684,6 +659,31 @@
     <tags>
       
       <tag>面试题</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Shell 实现的几个Http交互的方法</title>
+    <link href="/2018/06/14/Shell%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%87%A0%E4%B8%AAHttp%E4%BA%A4%E4%BA%92%E7%9A%84%E6%96%B9%E6%B3%95/"/>
+    <url>/2018/06/14/Shell%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%87%A0%E4%B8%AAHttp%E4%BA%A4%E4%BA%92%E7%9A%84%E6%96%B9%E6%B3%95/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>由于测试需求，需要测试一些http接口是否正常，作为后端开发可以用脚本语言来实现比如python,shell之类的，这里分享一下，用shell如何实现。</p></blockquote><ul><li><p>URLencode方法<br>既然是http接口，必定会用到urlencode来将参数放入URL中。</p><pre><code class="hljs perl">url_encode()&#123;   echo  <span class="hljs-string">&quot;$1&quot;</span> | <span class="hljs-keyword">tr</span> -d  <span class="hljs-string">&#x27;\n&#x27;</span> | xxd -plain | sed <span class="hljs-string">&#x27;s/\(..\)/%\1/g&#x27;</span> | <span class="hljs-keyword">tr</span> -d  <span class="hljs-string">&#x27;\n&#x27;</span>    <span class="hljs-keyword">return</span>  <span class="hljs-number">0</span> &#125;</code></pre></li><li><p>URLdecode方法</p><pre><code class="hljs markdown">url<span class="hljs-emphasis">_decode()&#123;</span><span class="hljs-emphasis">        printf $(echo -n $t | sed &#x27;s/\\/\\\\/g;s/\(%\)\([<span class="hljs-string">0-9a-fA-F</span>][<span class="hljs-symbol">0-9a-fA-F</span>]\)/\\x\2/g&#x27;)</span><span class="hljs-emphasis">        return 0</span><span class="hljs-emphasis">&#125;</span></code></pre></li><li><p>解析JSON数据，从JSON对象中获取某个属性</p><pre><code class="hljs bash"><span class="hljs-function"><span class="hljs-title">parse_json</span></span>()&#123;    json=`<span class="hljs-built_in">echo</span> <span class="hljs-variable">$1</span> | sed <span class="hljs-string">&#x27;s/\&quot;//g&#x27;</span>`; <span class="hljs-comment">#remove quotation mark</span>    <span class="hljs-built_in">echo</span> <span class="hljs-variable">$json</span> | sed <span class="hljs-string">&#x27;s/.*&#x27;</span><span class="hljs-variable">$2</span><span class="hljs-string">&#x27;:\([^,&#125;]*\).*/\1/&#x27;</span>    <span class="hljs-built_in">return</span> 0&#125;</code></pre></li><li><p>解析URL参数，从URL中获取某个参数的值</p><pre><code class="hljs bash"><span class="hljs-function"><span class="hljs-title">parse_uri_paras</span></span>()&#123;    <span class="hljs-built_in">echo</span> <span class="hljs-variable">$1</span> | sed <span class="hljs-string">&#x27;s/.*&#x27;</span><span class="hljs-variable">$2</span><span class="hljs-string">&#x27;=\([[:alnum:]]*\).*/\1/&#x27;</span>    <span class="hljs-built_in">return</span> 0&#125;</code></pre></li><li><p>获取重定向地址</p><pre><code class="hljs coffeescript">request_redirect_url()&#123;    echo `<span class="javascript">curl -i <span class="hljs-string">&quot;$1&quot;</span> <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span><span class="hljs-literal">null</span>  | sed -n <span class="hljs-string">&#x27;s/^Location://p&#x27;</span></span>`    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>&#125;</code></pre></li><li><p>发送简单的GET请求</p><pre><code class="hljs awk">http_get()&#123;    get_data=`curl -X GET <span class="hljs-string">&quot;$1&quot;</span> <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span>null`    <span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$get_data&quot;</span> =  <span class="hljs-string">&quot;&quot;</span> ]; then <span class="hljs-comment">#出错了</span>            echo <span class="hljs-string">&quot;出错了，试试：curl -X GET \&quot;$1\&quot;&quot;</span>            <span class="hljs-keyword">exit</span> <span class="hljs-number">1</span>    <span class="hljs-keyword">else</span>         echo <span class="hljs-variable">$get_data</span>        return <span class="hljs-number">0</span>    fi&#125;</code></pre></li><li><p>发送简单的POST请求</p><pre><code class="hljs awk">http_post()&#123;    post_data=`curl -X POST -d <span class="hljs-string">&quot;$1&quot;</span> <span class="hljs-variable">$2</span> <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span>null`    <span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$post_data&quot;</span> =  <span class="hljs-string">&quot;&quot;</span> ]; then <span class="hljs-comment">#出错了</span>                echo <span class="hljs-string">&quot;出错了，试试：curl -X POST \&quot;$1\&quot; \&quot;$2\&quot;&quot;</span>                <span class="hljs-keyword">exit</span> <span class="hljs-number">1</span>        <span class="hljs-keyword">else</span>                echo <span class="hljs-variable">$post_data</span>                return <span class="hljs-number">0</span>        fi&#125;</code></pre></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>服务端</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
       
     </tags>
     
@@ -767,31 +767,6 @@
   
   
   <entry>
-    <title>Java中锁的使用</title>
-    <link href="/2018/05/13/Java%E4%B8%AD%E9%94%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/"/>
-    <url>/2018/05/13/Java%E4%B8%AD%E9%94%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/</url>
-    
-    <content type="html"><![CDATA[<blockquote><p>工作3年多了，写过一点点Java代码，用过sychronized，不过确实没有用过Lock这个东西，今天抽时间看看。</p></blockquote><p>其实Lock是个接口：</p><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Lock</span> </span>&#123; <span class="hljs-comment">// 获取锁，如果锁被占用，则等待；</span>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">lock</span><span class="hljs-params">()</span></span>;    <span class="hljs-comment">// </span>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">lockInterruptibly</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">tryLock</span><span class="hljs-params">()</span></span>;    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">tryLock</span><span class="hljs-params">(<span class="hljs-keyword">long</span> time, TimeUnit unit)</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">unlock</span><span class="hljs-params">()</span></span>;    <span class="hljs-function">Condition <span class="hljs-title">newCondition</span><span class="hljs-params">()</span></span>;&#125;</code></pre>]]></content>
-    
-    
-    <categories>
-      
-      <category>服务端</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>Java</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>某公司两道面试题</title>
     <link href="/2018/05/13/%E6%9F%90%E5%85%AC%E5%8F%B8%E4%B8%A4%E9%81%93%E9%9D%A2%E8%AF%95%E9%A2%98/"/>
     <url>/2018/05/13/%E6%9F%90%E5%85%AC%E5%8F%B8%E4%B8%A4%E9%81%93%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
@@ -809,6 +784,31 @@
     <tags>
       
       <tag>面试题</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Java中锁的使用</title>
+    <link href="/2018/05/13/Java%E4%B8%AD%E9%94%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/"/>
+    <url>/2018/05/13/Java%E4%B8%AD%E9%94%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>工作3年多了，写过一点点Java代码，用过sychronized，不过确实没有用过Lock这个东西，今天抽时间看看。</p></blockquote><p>其实Lock是个接口：</p><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Lock</span> </span>&#123; <span class="hljs-comment">// 获取锁，如果锁被占用，则等待；</span>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">lock</span><span class="hljs-params">()</span></span>;    <span class="hljs-comment">// </span>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">lockInterruptibly</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">tryLock</span><span class="hljs-params">()</span></span>;    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">tryLock</span><span class="hljs-params">(<span class="hljs-keyword">long</span> time, TimeUnit unit)</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">unlock</span><span class="hljs-params">()</span></span>;    <span class="hljs-function">Condition <span class="hljs-title">newCondition</span><span class="hljs-params">()</span></span>;&#125;</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>服务端</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
       
     </tags>
     
